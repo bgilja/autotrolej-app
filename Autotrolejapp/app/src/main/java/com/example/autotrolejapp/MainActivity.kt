@@ -1,11 +1,11 @@
 package com.example.autotrolejapp
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
+import com.example.autotrolejapp.home.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
