@@ -1,20 +1,27 @@
 package com.example.autotrolejapp.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.helpers.filterLinesByArea
+import com.example.autotrolejapp.helpers.getDistinctLinesByLineNumber
 import com.google.android.material.tabs.TabLayout
 
 
 class HomeFragment : Fragment() {
+
+    private val adapter = LinesAdapter()
+    private val lines: List<Line>
+        get() = viewModel.lines.value.orEmpty()
 
     private val viewModel: HomeViewModel by lazy {
         ViewModelProvider(this).get(HomeViewModel::class.java)
@@ -24,48 +31,50 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        viewModel.lines.observeForever {
-            lines = viewModel.lines.value!!
-            Log.d(HomeFragment::class.java.name, "Lines changed")
-            Log.d(HomeFragment::class.java.name, lines.size.toString())
-            updateList()
-        }
-
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-            val tabLayout = view.findViewById<TabLayout>(R.id.linesTabLayout)
+        val tabLayout = view.findViewById<TabLayout>(R.id.linesTabLayout)
 
-            tabLayout?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        tabLayout?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    activeFragment = tabLayout.selectedTabPosition + 1
-                    Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
-                    updateList()
-                }
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                activeFragment = tabLayout.selectedTabPosition + 1
+                Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
+                updateList()
+            }
 
-                override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
 
-                override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            })
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+        })
+
+        val recyclerView: RecyclerView = view.findViewById(R.id.lineList)
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = layoutManager
+
+        recyclerView.adapter = adapter
+
+        viewModel.lines.observe(viewLifecycleOwner, Observer {
+            it?.let{
+                updateList()
+            }
+        })
+    }
+    private fun getActiveArea(): String {
+        return when(activeFragment) {
+            2 -> "Wide"
+            3 -> "Night"
+            else -> "Local"
+        }
     }
 
     private fun updateList() {
-        Log.d("82949023402948903", activeFragment.toString())
-        val x = filterLinesByArea(lines, "Local")
-        Log.d("302012931289081239031", x.size.toString())
-
-        val usedLines = mutableSetOf<String>()
-        for (line in x) {
-            if (!usedLines.contains(line.lineNumber)) {
-                Log.d("8031280912890231", line.lineNumber + " " + line.variantName)
-                usedLines.add(line.lineNumber)
-            }
-        }
+        val items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
+        this.adapter.data = items
     }
 
     companion object {

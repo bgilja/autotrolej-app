@@ -33,7 +33,7 @@ data class Line(
             "2A", "3", "3A", "4", "4A",
             "5", "5A", "6", "7", "7A", "8", "13").toSet()
 
-        val NIGHT: Set<String> = listOf("102", "103").toSet()
+        val NIGHT: Set<String> = listOf("101", "102", "103").toSet()
 
         fun findArea(lineNumber: String): String {
             if (LOCAL.contains(lineNumber)) return "Local"
