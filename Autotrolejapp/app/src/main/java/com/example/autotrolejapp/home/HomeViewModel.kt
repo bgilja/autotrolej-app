@@ -22,7 +22,7 @@ class HomeViewModel : ViewModel() {
 
     private val _lines = MutableLiveData<List<Line>>()
     val lines: LiveData<List<Line>>
-        get() = _lines
+                get() = _lines
 
     private val _currentDaySchedule = MutableLiveData<Schedule>()
     val currentDaySchedule: LiveData<Schedule>

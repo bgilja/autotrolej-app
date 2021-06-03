@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
 import com.example.autotrolejapp.home.HomeFragment
+import com.example.autotrolejapp.map.MapFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,4 +69,5 @@ class MainActivity : AppCompatActivity() {
         val fragmentTransition = supportFragmentManager.beginTransaction()
         fragmentTransition.replace(R.id.fragmentContainer, fragment).addToBackStack(Fragment::class.java.simpleName).commit()
     }
+
 }
