@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -44,7 +46,7 @@ class HomeFragment : Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 activeFragment = tabLayout.selectedTabPosition + 1
-                Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
+                //Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
                 updateList()
             }
 
@@ -74,7 +76,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateList() {
+        val recyclerView: RecyclerView = requireView().findViewById(R.id.lineList)
+        val textNoLines: RelativeLayout = requireView().findViewById(R.id.no_lines)
         val items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
+        //Log.d("IZ UPDATE LIST", items.toString())
+        if(items.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+            textNoLines.visibility = View.GONE
+        } else {
+            recyclerView.visibility = View.GONE
+            textNoLines.visibility = View.VISIBLE
+        }
         this.adapter.data = items
     }
 

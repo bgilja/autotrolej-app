@@ -7,38 +7,72 @@
     tools:context=".home.HomeFragment">
 
     <com.google.android.material.tabs.TabLayout
+        android:id="@+id/linesTabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linesTabLayout">
+        android:scrollbarAlwaysDrawHorizontalTrack="false"
+        app:tabIconTint="@color/tab_color_selector"
+        app:tabIconTintMode="src_atop"
+        app:tabInlineLabel="true"
+        app:tabMode="scrollable">
 
         <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/linesLocalAreaTab"
-            android:text="Lokalni"
-            />
-
-        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:icon="@drawable/ic_linije_gradske"
+            android:text="Lokalni" />
+
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/linesWideAreaTab"
-            android:text="Prigradski"
-            />
-
-        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:icon="@drawable/ic_linije_prigradske"
+            android:text="Prigradski" />
+
+        <com.google.android.material.tabs.TabItem
             android:id="@+id/linesNightTab"
-            android:text="Noćni"
-            />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/ic_linije_nocne"
+            android:text="Noćni" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lineList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="47dp"
         android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <RelativeLayout
+        android:id="@+id/no_lines"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp">
+
+        <ImageView
+            android:id="@+id/imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:adjustViewBounds="false"
+            android:alpha="0.6"
+            android:src="@drawable/ic_bus_alert"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_below="@id/imageview"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="Nema dostupnih voznih redova!"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
 
 </FrameLayout>
