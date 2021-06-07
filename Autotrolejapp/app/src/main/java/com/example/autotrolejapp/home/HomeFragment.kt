@@ -6,23 +6,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.autotrolejapp.MainActivity
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.helpers.filterLinesByArea
 import com.example.autotrolejapp.helpers.getDistinctLinesByLineNumber
+import com.example.autotrolejapp.pdfview.PdfViewFragment
+import com.github.barteksc.pdfviewer.PDFView
 import com.google.android.material.tabs.TabLayout
 
 
 class HomeFragment : Fragment() {
 
-    private val adapter = LinesAdapter()
+    private val adapter = LinesAdapter(object: LinesAdapter.ViewHolder.Listener{
+        override fun onScheduleClick(lineNumber: String) {
+            val fragment: PdfViewFragment? = PdfViewFragment.newInstance(lineNumber)
+            if (fragment != null) {
+                (activity as MainActivity).replaceFragment(fragment)
+            }
+        }
+
+        override fun onRouteClick(lineNumber: String) {
+           //TODO: implementirat nesto >>> BRAP
+
+        }
+    })
     private val lines: List<Line>
         get() = viewModel.lines.value.orEmpty()
 
@@ -102,4 +115,12 @@ class HomeFragment : Fragment() {
                 arguments = Bundle().apply {}
             }
     }
+
+    /*private fun replaceFragment(fagment: Fragment) {
+        //val fragmentTransition = supportFragmentManager.beginTransaction()
+        //fragmentTransition.replace(R.id.fragmentContainer, fragment).addToBackStack(Fragment::class.java.simpleName).commit()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.home_fragment, fagment)
+            .addToBackStack(Fragment::class.java.simpleName).commit()
+    }*/
 }

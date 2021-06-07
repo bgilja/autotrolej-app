@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
 import com.example.autotrolejapp.home.HomeFragment
 import com.example.autotrolejapp.map.MapFragment
+import com.github.barteksc.pdfviewer.PDFView
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
+    fun replaceFragment(fragment: Fragment) {
         val fragmentTransition = supportFragmentManager.beginTransaction()
         fragmentTransition.replace(R.id.fragmentContainer, fragment).addToBackStack(Fragment::class.java.simpleName).commit()
     }
