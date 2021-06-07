@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.autotrolejapp.entities.BusLocation
 import com.example.autotrolejapp.entities.Station
-import com.example.autotrolejapp.home.AutotrolejApiStatus
 import com.example.autotrolejapp.network.AutotrolejApi
 import com.example.autotrolejapp.network.formatBusLocationResponse
 import com.example.autotrolejapp.network.formatStationResponse
