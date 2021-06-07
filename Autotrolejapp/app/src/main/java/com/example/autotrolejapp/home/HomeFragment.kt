@@ -5,24 +5,38 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.databinding.DataBindingUtil
+import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.autotrolejapp.MainActivity
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.helpers.filterLinesByArea
 import com.example.autotrolejapp.helpers.getDistinctLinesByLineNumber
+import com.example.autotrolejapp.pdfview.PdfViewFragment
+import com.github.barteksc.pdfviewer.PDFView
 import com.google.android.material.tabs.TabLayout
 
 
 class HomeFragment : Fragment() {
 
-    private val adapter = LinesAdapter()
+    private val adapter = LinesAdapter(object: LinesAdapter.ViewHolder.Listener{
+        override fun onScheduleClick(lineNumber: String) {
+            val fragment: PdfViewFragment? = PdfViewFragment.newInstance(lineNumber)
+            if (fragment != null) {
+                (activity as MainActivity).replaceFragment(fragment)
+            }
+        }
+
+        override fun onRouteClick(lineNumber: String) {
+           //TODO: implementirat nesto >>> BRAP
+
+        }
+    })
     private val lines: List<Line>
         get() = viewModel.lines.value.orEmpty()
 
@@ -63,7 +77,7 @@ class HomeFragment : Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 activeFragment = tabLayout.selectedTabPosition + 1
-                Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
+                //Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
                 updateList()
             }
 
@@ -93,7 +107,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateList() {
+        val recyclerView: RecyclerView = requireView().findViewById(R.id.lineList)
+        val textNoLines: RelativeLayout = requireView().findViewById(R.id.no_lines)
         val items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
+        //Log.d("IZ UPDATE LIST", items.toString())
+        if(items.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+            textNoLines.visibility = View.GONE
+        } else {
+            recyclerView.visibility = View.GONE
+            textNoLines.visibility = View.VISIBLE
+        }
         this.adapter.data = items
     }
 
@@ -109,4 +133,12 @@ class HomeFragment : Fragment() {
                 arguments = Bundle().apply {}
             }
     }
+
+    /*private fun replaceFragment(fagment: Fragment) {
+        //val fragmentTransition = supportFragmentManager.beginTransaction()
+        //fragmentTransition.replace(R.id.fragmentContainer, fragment).addToBackStack(Fragment::class.java.simpleName).commit()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.home_fragment, fagment)
+            .addToBackStack(Fragment::class.java.simpleName).commit()
+    }*/
 }

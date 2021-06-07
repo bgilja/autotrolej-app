@@ -56,6 +56,8 @@ dependencies {
     kapt "androidx.room:room-compiler:$version_room"
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.3.0"
@@ -74,4 +76,7 @@ dependencies {
 
     // Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$version_room"
+
+    //pdf viewer
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
 }
