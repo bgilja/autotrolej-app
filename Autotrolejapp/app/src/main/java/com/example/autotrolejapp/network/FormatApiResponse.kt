@@ -41,21 +41,24 @@ fun formatBusLocationResponse(items: List<BusLocationResponse>) : List<BusLocati
     return busLocations
 }
 
-fun formatScheduleResponse(items: List<ScheduleLineResponse>): Schedule {
-    val schedule = Schedule()
+fun formatScheduleResponse(items: List<ScheduleLineResponse>): Pair<List<ScheduleLine>, List<ScheduleStation>> {
+    val scheduleLines = mutableListOf<ScheduleLine>()
+    val scheduleStations = mutableListOf<ScheduleStation>()
 
     var usedStarts = mutableSetOf<Int>()
+
     for (scheduleLineResponse in items) {
         val scheduleStation = ScheduleStation(scheduleLineResponse)
+        scheduleStations.add(scheduleStation)
 
         if (usedStarts.contains(scheduleLineResponse.startId)) {
-            schedule.getScheduleLines().last().addScheduleStation(scheduleStation)
             continue
         }
 
-        val scheduleLine = ScheduleLine(scheduleLineResponse, scheduleStation)
-        schedule.addScheduleLine(scheduleLine)
+        val scheduleLine = ScheduleLine(scheduleLineResponse)
+        scheduleLines.add(scheduleLine)
         usedStarts.add(scheduleLine.startId)
     }
-    return schedule
+
+    return Pair(scheduleLines, scheduleStations)
 }

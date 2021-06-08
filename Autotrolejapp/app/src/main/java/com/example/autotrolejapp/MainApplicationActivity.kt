@@ -41,6 +41,10 @@ class MainApplicationActivity() : AppCompatActivity() {
             launch {
                 getAutotrolejStations()
             }
+
+            launch {
+                getScheduleToday()
+            }
         }
         return true
     }
@@ -81,6 +85,29 @@ class MainApplicationActivity() : AppCompatActivity() {
             stationDatabaseDao.insertMultiple(stations)
 
             Log.d("FETCH DATA", "Updated stations")
+            return true
+        } catch (e: Exception) {
+            Log.e("FETCH DATA", "FAIL")
+        }
+        return false
+    }
+
+    private suspend fun getScheduleToday(): Boolean {
+        Log.d("FETCH DATA", "Request for autotrolej shedule for today")
+        try {
+            val scheduleResponse = AutotrolejApi.retrofitService.getScheduleToday()
+            val (scheduleLines, scheduleStations) = formatScheduleResponse(scheduleResponse)
+
+            val scheduleLineResponse = AutotrolejDatabase.getInstance(application).scheduleLineDatabaseDao
+            val scheduleStationDatabaseDao = AutotrolejDatabase.getInstance(application).scheduleStationDatabaseDao
+
+            scheduleLineResponse.clear()
+            scheduleLineResponse.insertMultiple(scheduleLines)
+
+            scheduleStationDatabaseDao.clear()
+            scheduleStationDatabaseDao.insertMultiple(scheduleStations)
+
+            Log.d("FETCH DATA", "Updated todays schedule")
             return true
         } catch (e: Exception) {
             Log.e("FETCH DATA", "FAIL")

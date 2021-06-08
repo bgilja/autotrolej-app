@@ -42,9 +42,7 @@ class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by lazy {
         val application = requireNotNull(this.activity).application
         val lineDatabaseDao = AutotrolejDatabase.getInstance(application).lineDatabaseDao
-        val stationDatabaseDao = AutotrolejDatabase.getInstance(application).stationDatabaseDao
-        val lineStationDatabaseDao = AutotrolejDatabase.getInstance(application).lineStationDatabaseDao
-        val viewModelFactory = HomeViewModelFactory(lineDatabaseDao, stationDatabaseDao, lineStationDatabaseDao, application)
+        val viewModelFactory = HomeViewModelFactory(lineDatabaseDao, application)
         ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
     }
 
@@ -58,28 +56,12 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel._lines.observe(viewLifecycleOwner, Observer {
-            Log.d("LINES", it.size.toString())
-            viewModel.printStations()
-        })
-
-        viewModel._lineStations.observe(viewLifecycleOwner, Observer {
-            Log.d("LINE STATIONS", it.size.toString())
-            viewModel.printStations()
-        })
-
-        viewModel._stations.observe(viewLifecycleOwner, Observer {
-            Log.d("STATIONS", it.size.toString())
-            viewModel.printStations()
-        })
-
         val tabLayout = view.findViewById<TabLayout>(R.id.linesTabLayout)
 
         tabLayout?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 activeFragment = tabLayout.selectedTabPosition + 1
-                //Toast.makeText(view.context, activeFragment.toString(), Toast.LENGTH_SHORT).show()
                 updateList()
             }
 

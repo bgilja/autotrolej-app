@@ -8,12 +8,8 @@ import com.example.autotrolejapp.database.StationDatabaseDao
 
 class HomeViewModel(
     val lineDatabaseDao: LineDatabaseDao,
-    val stationDatabaseDao: StationDatabaseDao,
-    val lineStationDatabaseDao: LineStationDatabaseDao,
     application: Application
 ) : AndroidViewModel(application) {
 
     val _lines = lineDatabaseDao.getAll()
-    val _stations = stationDatabaseDao.getAll()
-    val _lineStations = lineStationDatabaseDao.getAll()
 }

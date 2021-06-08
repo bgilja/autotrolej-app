@@ -9,8 +9,6 @@ import com.example.autotrolejapp.database.StationDatabaseDao
 
 class HomeViewModelFactory(
     private val lineDatabaseDao: LineDatabaseDao,
-    private val stationDatabaseDao: StationDatabaseDao,
-    private val lineStationDatabaseDao: LineStationDatabaseDao,
     private val application: Application
 ) : ViewModelProvider.Factory {
 
@@ -18,7 +16,7 @@ class HomeViewModelFactory(
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
 
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel(lineDatabaseDao, stationDatabaseDao, lineStationDatabaseDao, application) as T
+            return HomeViewModel(lineDatabaseDao, application) as T
         }
 
         throw IllegalArgumentException("Unknown ViewModel class")

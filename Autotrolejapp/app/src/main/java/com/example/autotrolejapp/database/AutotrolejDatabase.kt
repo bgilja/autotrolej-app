@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.autotrolejapp.entities.Line
-import com.example.autotrolejapp.entities.LineStation
-import com.example.autotrolejapp.entities.Station
+import com.example.autotrolejapp.entities.*
 
-@Database(entities = [Line::class, Station::class, LineStation::class], version = 2, exportSchema = false)
+@Database(entities = [Line::class, Station::class, LineStation::class, ScheduleLine::class, ScheduleStation::class], version = 3, exportSchema = false)
 abstract class AutotrolejDatabase: RoomDatabase() {
 
     abstract val lineDatabaseDao: LineDatabaseDao
     abstract val stationDatabaseDao: StationDatabaseDao
     abstract val lineStationDatabaseDao: LineStationDatabaseDao
+    abstract val scheduleLineDatabaseDao: ScheduleLineDatabaseDao
+    abstract val scheduleStationDatabaseDao: ScheduleStationDatabaseDao
 
     companion object {
 
