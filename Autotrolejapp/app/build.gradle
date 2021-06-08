@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
     id 'com.google.secrets_gradle_plugin' version '0.5'
 }
 
@@ -48,6 +50,12 @@ dependencies {
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
+    implementation "androidx.room:room-runtime:$version_room"
+
+    implementation "androidx.room:room-runtime:$version_room"
+    kapt "androidx.room:room-compiler:$version_room"
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
 
     testImplementation "junit:junit:4.13.2"
@@ -62,9 +70,12 @@ dependencies {
 
     implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
 
-    implementation "androidx.recyclerview:recyclerview:1.2.0"
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
     // For control over item selection of both touch and mouse driven selection
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
+
+    // Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$version_room"
 
     //pdf viewer
     implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'

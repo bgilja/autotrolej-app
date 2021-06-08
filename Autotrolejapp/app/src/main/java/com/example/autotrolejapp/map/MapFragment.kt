@@ -79,8 +79,8 @@ class MapFragment : Fragment(){
             Log.d("IZ UPDATE MAP", "POSTAVI PINOVE NA MAPU")
             filteredStations.forEach { station ->
                 val marker_pos = LatLng(
-                    station.location.latitude!!.toDouble(),
-                    station.location.longitude!!.toDouble()
+                    station.latitude!!.toDouble(),
+                    station.longitude!!.toDouble()
                 )
                 val marker_name = station.name
                 mMap.addMarker(

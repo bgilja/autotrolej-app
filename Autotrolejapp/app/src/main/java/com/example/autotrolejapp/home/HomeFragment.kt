@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.autotrolejapp.MainActivity
 import com.example.autotrolejapp.R
+import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.helpers.filterLinesByArea
 import com.example.autotrolejapp.helpers.getDistinctLinesByLineNumber
@@ -40,7 +41,12 @@ class HomeFragment : Fragment() {
         get() = viewModel.lines.value.orEmpty()
 
     private val viewModel: HomeViewModel by lazy {
-        ViewModelProvider(this).get(HomeViewModel::class.java)
+        val application = requireNotNull(this.activity).application
+        val lineDatabaseDao = AutotrolejDatabase.getInstance(application).lineDatabaseDao
+        val stationDatabaseDao = AutotrolejDatabase.getInstance(application).stationDatabaseDao
+        val lineStationDatabaseDao = AutotrolejDatabase.getInstance(application).lineStationDatabaseDao
+        val viewModelFactory = HomeViewModelFactory(lineDatabaseDao, stationDatabaseDao, lineStationDatabaseDao, application)
+        ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -52,6 +58,18 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.lines.observe(viewLifecycleOwner, Observer {
+            Log.d("LINES", it.size.toString())
+        })
+
+        viewModel.lineStations.observe(viewLifecycleOwner, Observer {
+            Log.d("LINE STATIONS", it.size.toString())
+        })
+
+        viewModel.stations.observe(viewLifecycleOwner, Observer {
+            Log.d("STATIONS", it.size.toString())
+        })
 
         val tabLayout = view.findViewById<TabLayout>(R.id.linesTabLayout)
 

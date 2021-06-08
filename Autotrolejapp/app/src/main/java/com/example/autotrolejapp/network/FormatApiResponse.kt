@@ -1,27 +1,26 @@
 package com.example.autotrolejapp.network
 
-import android.util.Log
 import com.example.autotrolejapp.entities.*
-import com.example.autotrolejapp.entities.Schedule
 
-fun formatLineResponse(items: List<LineResponse>) : List<Line> {
+fun formatLineResponse(items: List<LineResponse>) : Pair<List<Line>, List<LineStation>> {
     var lines = mutableListOf<Line>()
+    var lineStations = mutableListOf<LineStation>()
 
     var usedLines = mutableSetOf<String>()
 
-    Log.d(object{}.javaClass.enclosingMethod!!.name, "")
     for (lineResponse in items) {
         val lineStation = LineStation(lineResponse)
+        lineStations.add(lineStation)
 
         if (usedLines.contains(lineResponse.lineVariantId)) {
-            lines.last().addLineStation(lineStation)
             continue
         }
 
-        lines.add(Line(lineResponse, lineStation))
+        lines.add(Line(lineResponse))
         usedLines.add(lineResponse.lineVariantId)
     }
-    return lines
+
+    return Pair(lines, lineStations)
 }
 
 fun formatStationResponse(items: List<StationResponse>) : List<Station> {

@@ -19,6 +19,8 @@ buildscript {
         version_recyclerview = "1.2.0-alpha05"
 
         meow_bottom_navigation_version = "1.2.0"
+
+        version_room = "2.3.0"
     }
 
     repositories {
