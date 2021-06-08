@@ -23,8 +23,9 @@ class HomeViewModel(
     val lineStations = lineStationDatabaseDao.getAll()
 
     init {
-        getAutotrolejLines()
-        getAutotrolejStations()
+
+        if (lines.value?.isEmpty() == true  || lineStations.value?.isEmpty() == true)  getAutotrolejLines()
+        if (stations.value?.isEmpty() == true)  getAutotrolejStations()
     }
 
     private fun getAutotrolejLines() {

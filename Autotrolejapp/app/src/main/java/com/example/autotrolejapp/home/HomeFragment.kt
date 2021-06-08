@@ -18,7 +18,6 @@ import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.helpers.filterLinesByArea
 import com.example.autotrolejapp.helpers.getDistinctLinesByLineNumber
 import com.example.autotrolejapp.pdfview.PdfViewFragment
-import com.github.barteksc.pdfviewer.PDFView
 import com.google.android.material.tabs.TabLayout
 
 
