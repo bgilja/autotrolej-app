@@ -9,6 +9,7 @@ import com.example.autotrolejapp.database.StationDatabaseDao
 import com.example.autotrolejapp.network.AutotrolejApi
 import com.example.autotrolejapp.network.formatLineResponse
 import com.example.autotrolejapp.network.formatStationResponse
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -18,14 +19,42 @@ class HomeViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    val lines = lineDatabaseDao.getAll()
-    val stations = stationDatabaseDao.getAll()
-    val lineStations = lineStationDatabaseDao.getAll()
+    val _lines = lineDatabaseDao.getAll()
+    val lines
+        get() = _lines.value.orEmpty()
+
+    val _stations = stationDatabaseDao.getAll()
+
+    val _lineStations = lineStationDatabaseDao.getAll()
 
     init {
 
-        if (lines.value?.isEmpty() == true  || lineStations.value?.isEmpty() == true)  getAutotrolejLines()
-        if (stations.value?.isEmpty() == true)  getAutotrolejStations()
+        if (_lines.value?.isEmpty() == true  || _lineStations.value?.isEmpty() == true)  getAutotrolejLines()
+        if (_stations.value?.isEmpty() == true)  getAutotrolejStations()
+    }
+
+    fun printStations() {
+        Log.d("230438902482903", lines.size.toString())
+        if (lines.isEmpty()) return
+
+        val variantId = lines.first().variantId
+        getLineStations(variantId)
+    }
+
+    private fun getLineStations(variantId: String) {
+        Log.d("230438902482903", variantId)
+        viewModelScope.launch {
+            lineStationDatabaseDao.getByLine(variantId).let {
+                val lineStations = it.value.orEmpty()
+                val stations = lineStations.map { x -> x.stationId }
+
+                for (station in stations) {
+                    Log.d("STATION", station.toString())
+                }
+
+                val result = stationDatabaseDao.getMultipleById(stations).value.orEmpty()
+            }
+        }
     }
 
     private fun getAutotrolejLines() {

@@ -15,6 +15,9 @@ interface LineDatabaseDao : BaseDao<Line> {
     @Query( "SELECT * from ${Companion.tableName} WHERE identity = :key")
     suspend fun get(key: String): Line
 
+    @Query( "SELECT * from ${Companion.tableName} WHERE variant_id = :line_variant_id LIMIT 1")
+    suspend fun getByVariantId(line_variant_id: String): Line
+
     @Query("SELECT * FROM ${Companion.tableName} ORDER BY identity DESC")
     fun getAll(): LiveData<List<Line>>
 

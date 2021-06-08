@@ -37,7 +37,7 @@ class HomeFragment : Fragment() {
         }
     })
     private val lines: List<Line>
-        get() = viewModel.lines.value.orEmpty()
+        get() = viewModel._lines.value.orEmpty()
 
     private val viewModel: HomeViewModel by lazy {
         val application = requireNotNull(this.activity).application
@@ -58,16 +58,19 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.lines.observe(viewLifecycleOwner, Observer {
+        viewModel._lines.observe(viewLifecycleOwner, Observer {
             Log.d("LINES", it.size.toString())
+            viewModel.printStations()
         })
 
-        viewModel.lineStations.observe(viewLifecycleOwner, Observer {
+        viewModel._lineStations.observe(viewLifecycleOwner, Observer {
             Log.d("LINE STATIONS", it.size.toString())
+            viewModel.printStations()
         })
 
-        viewModel.stations.observe(viewLifecycleOwner, Observer {
+        viewModel._stations.observe(viewLifecycleOwner, Observer {
             Log.d("STATIONS", it.size.toString())
+            viewModel.printStations()
         })
 
         val tabLayout = view.findViewById<TabLayout>(R.id.linesTabLayout)
@@ -91,12 +94,13 @@ class HomeFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-        viewModel.lines.observe(viewLifecycleOwner, Observer {
+        viewModel._lines.observe(viewLifecycleOwner, Observer {
             it?.let{
                 updateList()
             }
         })
     }
+
     private fun getActiveArea(): String {
         return when(activeFragment) {
             2 -> "Wide"
@@ -122,8 +126,6 @@ class HomeFragment : Fragment() {
 
     companion object {
         const val FRAGMENT_ID: Int = 1
-
-        private var lines = emptyList<Line>()
         private var activeFragment = 1
 
         @JvmStatic
