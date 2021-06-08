@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.autotrolejapp.R
+import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.entities.Station
 import com.example.autotrolejapp.helpers.filterStationsByNameAndGeoXGeoY
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,7 +27,10 @@ class MapFragment : Fragment(){
     private var mapReady = false
 
     private val viewModel: MapViewModel by lazy {
-        ViewModelProvider(this).get(MapViewModel::class.java)
+        val application = requireNotNull(this.activity).application
+        val stationDatabaseDao = AutotrolejDatabase.getInstance(application).stationDatabaseDao
+        val viewModelFactory = MapViewModelFactory(stationDatabaseDao, application)
+        ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
     }
 
     private val stations: List<Station>
@@ -73,20 +77,20 @@ class MapFragment : Fragment(){
     private fun updateMap(){
         val rijekaLocation = LatLng(45.32,14.44)
         if (mapReady && !stations.isNullOrEmpty()) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(rijekaLocation, 11f))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(rijekaLocation, 15f))
             //Cisto da ne ispisuje sve
-            var filteredStations: List<Station> = stations.take(5);
+            var filteredStations: List<Station> = stations.filter { x -> x.isValid() };
             Log.d("IZ UPDATE MAP", "POSTAVI PINOVE NA MAPU")
             filteredStations.forEach { station ->
-                val marker_pos = LatLng(
+                val markerPos = LatLng(
                     station.latitude!!.toDouble(),
                     station.longitude!!.toDouble()
                 )
-                val marker_name = station.name
+                val markerName = station.name
                 mMap.addMarker(
                     MarkerOptions()
-                        .position(marker_pos)
-                        .title(marker_name)
+                        .position(markerPos)
+                        .title(markerName)
                         .icon(bitMapFromVector(R.drawable.ic_bus_stop))
                 )
                 //val cameraPostion = CameraPosition.Builder().target(rijekaLocation).build()

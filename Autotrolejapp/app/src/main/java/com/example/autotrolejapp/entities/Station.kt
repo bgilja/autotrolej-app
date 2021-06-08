@@ -30,4 +30,9 @@ data class Station(
     companion object {
         const val TABLE_NAME = "stations_table"
     }
+
+    fun isValid(): Boolean {
+        if (this.latitude == null || this.longitude == null) return false
+        return true
+    }
 }
