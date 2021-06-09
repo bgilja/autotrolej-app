@@ -163,9 +163,6 @@ class PdfViewFragment : Fragment() {
             pdfView?.fromStream(inputStream)?.load()
 
         }
-
     }
-
-
 
 }

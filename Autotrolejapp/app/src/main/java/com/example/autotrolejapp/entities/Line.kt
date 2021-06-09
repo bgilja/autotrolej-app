@@ -58,4 +58,9 @@ data class Line(
             return "Wide"
         }
     }
+
+    fun containsLineNumber(lineNumber: String): Boolean {
+        if (this.lineNumber == lineNumber ) return true
+        return false
+    }
 }

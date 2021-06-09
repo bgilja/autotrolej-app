@@ -17,6 +17,7 @@ import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.helpers.filterLinesByArea
 import com.example.autotrolejapp.helpers.getDistinctLinesByLineNumber
+import com.example.autotrolejapp.line_variant.LineVariantFragment
 import com.example.autotrolejapp.pdfview.PdfViewFragment
 import com.google.android.material.tabs.TabLayout
 
@@ -33,6 +34,12 @@ class HomeFragment : Fragment() {
 
         override fun onRouteClick(lineNumber: String) {
            //TODO: implementirat nesto >>> BRAP
+            val linesBylineNumber = lines.filter {x -> x.containsLineNumber(lineNumber)}
+            val lineVariantIds = linesBylineNumber.map{ x -> x.variantId }
+            val fragment: LineVariantFragment? = LineVariantFragment.newInstance(lineVariantIds)
+            if (fragment != null) {
+                (activity as MainActivity).replaceFragment(fragment)
+            }
 
         }
     })
@@ -83,13 +90,13 @@ class HomeFragment : Fragment() {
         })
 
         // Obrisi
-        viewModel.kbcStations.observe(viewLifecycleOwner, {
+        /*viewModel.kbcStations.observe(viewLifecycleOwner, {
             it.let {
                 for (station in it) {
                     Log.d("KBC STATIONS", station.name)
                 }
             }
-        })
+        })*/
     }
 
     private fun getActiveArea(): String {
@@ -101,10 +108,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateList() {
+        Log.d("IZ UPDATE LIST", "jesi tu")
         val recyclerView: RecyclerView = requireView().findViewById(R.id.lineList)
         val textNoLines: RelativeLayout = requireView().findViewById(R.id.no_lines)
         val items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
-        //Log.d("IZ UPDATE LIST", items.toString())
         if(items.isNotEmpty()) {
             recyclerView.visibility = View.VISIBLE
             textNoLines.visibility = View.GONE
@@ -125,12 +132,4 @@ class HomeFragment : Fragment() {
                 arguments = Bundle().apply {}
             }
     }
-
-    /*private fun replaceFragment(fagment: Fragment) {
-        //val fragmentTransition = supportFragmentManager.beginTransaction()
-        //fragmentTransition.replace(R.id.fragmentContainer, fragment).addToBackStack(Fragment::class.java.simpleName).commit()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.home_fragment, fagment)
-            .addToBackStack(Fragment::class.java.simpleName).commit()
-    }*/
 }

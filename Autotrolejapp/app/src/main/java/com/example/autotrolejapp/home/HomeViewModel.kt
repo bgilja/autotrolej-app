@@ -13,5 +13,5 @@ class HomeViewModel(
 
     val _lines = lineDatabaseDao.getAll()
 
-    val kbcStations = lineDatabaseDao.getStations("KBC-B-2")
+    //val kbcStations = lineDatabaseDao.getStations("KBC-B-2")
 }
