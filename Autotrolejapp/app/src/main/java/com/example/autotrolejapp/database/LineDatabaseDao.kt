@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.example.autotrolejapp.entities.Line
+import com.example.autotrolejapp.entities.LineStation
+import com.example.autotrolejapp.entities.Station
 
 @Dao
 interface LineDatabaseDao : BaseDao<Line> {
@@ -23,4 +25,7 @@ interface LineDatabaseDao : BaseDao<Line> {
 
     @Query("DELETE FROM ${Companion.tableName}")
     suspend fun clear()
+
+    @Query("SELECT B.* FROM (SELECT * FROM ${LineStation.TABLE_NAME} WHERE line_variant_id = :lineVariantId) AS A INNER JOIN ${Station.TABLE_NAME} AS B ON A.station_id = B.id")
+    fun getStations(lineVariantId: String): LiveData<List<Station>>
 }

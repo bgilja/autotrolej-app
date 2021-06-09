@@ -21,7 +21,7 @@ class MainApplicationActivity() : AppCompatActivity() {
 
         val scope = CoroutineScope(newSingleThreadContext("fetch_data"))
         scope.launch {
-            fetchStatus = fetchData()
+            // fetchStatus = fetchData()
             changeActivity()
         }
     }

@@ -12,4 +12,6 @@ class HomeViewModel(
 ) : AndroidViewModel(application) {
 
     val _lines = lineDatabaseDao.getAll()
+
+    val kbcStations = lineDatabaseDao.getStations("KBC-B-2")
 }

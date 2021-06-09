@@ -81,6 +81,15 @@ class HomeFragment : Fragment() {
                 updateList()
             }
         })
+
+        // Obrisi
+        viewModel.kbcStations.observe(viewLifecycleOwner, {
+            it.let {
+                for (station in it) {
+                    Log.d("KBC STATIONS", station.name)
+                }
+            }
+        })
     }
 
     private fun getActiveArea(): String {

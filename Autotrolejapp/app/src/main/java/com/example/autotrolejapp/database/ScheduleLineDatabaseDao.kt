@@ -3,6 +3,7 @@ package com.example.autotrolejapp.database
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.entities.ScheduleLine
 
 @Dao
@@ -26,4 +27,7 @@ interface ScheduleLineDatabaseDao: BaseDao<ScheduleLine> {
 
     @Query("DELETE FROM $tableName")
     suspend fun clear()
+
+    @Query("SELECT * FROM ${Line.TABLE_NAME} WHERE variant_id IN (SELECT DISTINCT line_variant_id FROM $tableName WHERE start_id = :startId)")
+    fun getLineByStart(startId: Int): LiveData<List<Line>>
 }

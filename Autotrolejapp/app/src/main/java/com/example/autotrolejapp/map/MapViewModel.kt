@@ -9,6 +9,7 @@ import com.example.autotrolejapp.network.AutotrolejApi
 import com.example.autotrolejapp.network.formatBusLocationResponse
 import kotlinx.coroutines.launch
 
+
 class MapViewModel(
     val stationDatabaseDao: StationDatabaseDao,
     application: Application
@@ -32,6 +33,10 @@ class MapViewModel(
             try {
                 val data = AutotrolejApi.retrofitService.getCurrentBusLocations()
                 _busLocation.value = formatBusLocationResponse(data)
+
+                // val busLocationItem = _busLocation.value!!.first()
+                // val lines = scheduleLineDatabaseDao.getLineByStart(busLocationItem.startId)
+
                 Log.d(className, "DONE")
             } catch (e: Exception) {
                 Log.e(className, "FAIL")
