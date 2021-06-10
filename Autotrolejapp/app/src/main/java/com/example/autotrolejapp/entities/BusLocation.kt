@@ -8,8 +8,8 @@ data class BusLocation(
     val startId: Int,
     val stationId: Int,
     val time: Time?,
-    val longitude: Double?,
-    val latitude: Double?,
+    var longitude: Double?,
+    var latitude: Double?,
 ) {
     constructor(busLocationResponse: BusLocationResponse) :
             this(

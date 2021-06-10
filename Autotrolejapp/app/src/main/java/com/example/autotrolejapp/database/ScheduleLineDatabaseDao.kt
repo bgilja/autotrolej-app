@@ -29,5 +29,5 @@ interface ScheduleLineDatabaseDao: BaseDao<ScheduleLine> {
     suspend fun clear()
 
     @Query("SELECT * FROM ${Line.TABLE_NAME} WHERE variant_id IN (SELECT DISTINCT line_variant_id FROM $tableName WHERE start_id = :startId)")
-    fun getLineByStart(startId: Int): LiveData<List<Line>>
+    suspend fun getLineByStart(startId: Int): List<Line>
 }

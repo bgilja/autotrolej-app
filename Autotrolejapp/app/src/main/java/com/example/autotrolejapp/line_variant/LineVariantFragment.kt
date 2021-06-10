@@ -3,37 +3,36 @@ package com.example.autotrolejapp.line_variant
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
+import com.example.autotrolejapp.entities.BusLocation
+import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.entities.Station
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 
 class LineVariantFragment : Fragment() {
     private lateinit var lineVariantIds: ArrayList<String>
     private lateinit var selectedLineVariantId: String
-    private lateinit var stationsByLineVariantLive: LiveData<List<Station>>
-    private var stationsByLineVariant: MutableList<Station> = mutableListOf()
     private lateinit var mMap: GoogleMap
+    private var busLocationMarkers: MutableList<Marker> = mutableListOf()
     private var mapReady = false
 
     private val viewModel: LineVariantViewModel by lazy {
         val application = requireNotNull(this.activity).application
         val stationDatabaseDao = AutotrolejDatabase.getInstance(application).stationDatabaseDao
         val lineDatabaseDao = AutotrolejDatabase.getInstance(application).lineDatabaseDao
-        val viewModelFactory = LineVariantViewModelFactory(stationDatabaseDao, lineDatabaseDao, application)
+        val scheduleLineDatabaseDao = AutotrolejDatabase.getInstance(application).scheduleLineDatabaseDao
+        val viewModelFactory = LineVariantViewModelFactory(stationDatabaseDao, lineDatabaseDao, scheduleLineDatabaseDao, application)
         ViewModelProvider(this, viewModelFactory).get(LineVariantViewModel::class.java)
     }
 
@@ -70,16 +69,57 @@ class LineVariantFragment : Fragment() {
             lineVariantIds = bundle.getStringArrayList("lineVariantsIds") as ArrayList<String>
             selectedLineVariantId = lineVariantIds.first()
 
-            //set observer on live stations
+            //set observer on live stations (will be fetched through lineVariantId)
             viewModel.liveStations.observe(viewLifecycleOwner, { station ->
                 updateMap(station)
+            })
+
+            //set observer on live busLines (will be fetched through busLocation.startId)
+            viewModel.busLines.observe(viewLifecycleOwner, { busLine ->
+                showBusLines(busLine)
+            })
+
+            //set observer on liveBusLocations
+            viewModel.allBusesOnWantedLineLive.observe(viewLifecycleOwner, { busLocations ->
+                if(!busLocations.isNullOrEmpty()) updateMapBusLocation(busLocations)
             })
 
             //set liveStations so observer can catch a change
             //TODO: na promjenu selectedLineVariantId kroz neki dropdown pozivat ovu funkciju opet
             viewModel.getLiveStations(selectedLineVariantId)
+
+            //1a
+            //viewModel.getBusLine(1304789)
+            viewModel.getBusforWantedLine(selectedLineVariantId)
         }
     }
+
+    private fun updateMapBusLocation(busLocations: List<BusLocation>) {
+        Log.d("Iz updateMapBusLocation", "Uso u updejt map za bus")
+        busLocationMarkers.forEach { marker ->
+            marker.remove()
+        }
+        if (mapReady) {
+            busLocations.forEach { busLocation ->
+                val markerPos = LatLng(
+                    busLocation.longitude!!.toDouble(),
+                    busLocation.latitude!!.toDouble()
+                )
+                val markerName = busLocation.busName
+                busLocationMarkers.add(mMap.addMarker(
+                    MarkerOptions()
+                        .position(markerPos)
+                        .title(markerName)
+                        .icon(bitMapFromVector(R.drawable.ic_red_bus))
+                ))
+            }
+        }
+    }
+
+    private fun showBusLines(busLine: List<Line>?) {
+        //Log.d("Iz showBusLines AAAA", busLine.toString())
+    }
+
 
     private fun updateMap(stationsByLineVariant: List<Station>){
         if (mapReady) {
