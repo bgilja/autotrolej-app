@@ -62,6 +62,14 @@ class HomeFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        val tabLayout = view?.findViewById<TabLayout>(R.id.linesTabLayout)
+        tabLayout?.getTabAt(1)?.select();
+        tabLayout?.getTabAt(0)?.select();
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
