@@ -21,7 +21,7 @@ interface LineDatabaseDao : BaseDao<Line> {
     suspend fun getByVariantId(line_variant_id: String): Line
 
     @Query("SELECT * FROM ${Companion.tableName} ORDER BY identity DESC")
-    fun getAll(): LiveData<List<Line>>
+    suspend fun getAll(): List<Line>
 
     @Query("DELETE FROM ${Companion.tableName}")
     suspend fun clear()

@@ -28,6 +28,9 @@ data class Line(
     @ColumnInfo(name = "area")
     var area: String = "",
 
+    @ColumnInfo(name = "display_order")
+    var displayOrder: Int = 0,
+
 ) : BaseEntity() {
 
     constructor(lineResponse: LineResponse) :
@@ -39,8 +42,8 @@ data class Line(
                 lineResponse.direction,
                 lineResponse.variant,
                 findArea(lineResponse.lineNumber),
+                findDisplayOrder(lineResponse.lineNumber)
             )
-
     companion object {
 
         const val TABLE_NAME = "lines_table"
@@ -52,20 +55,36 @@ data class Line(
 
         private val NIGHT: Set<String> = listOf("101", "102", "103").toSet()
 
+        private val SUBURBAN: Set<String> = listOf(
+            "10", "10A", "11", "12", "12B", "14", "15",
+            "17", "18", "18B", "18C", "19", "20", "21",
+            "22", "23", "25", "26", "27", "27A", "29",
+            "29A", "30", "32", "32A", "34", "35", "36", "37"
+        ).toSet()
+
         fun findArea(lineNumber: String): String {
             if (LOCAL.contains(lineNumber)) return "Local"
             if (NIGHT.contains(lineNumber)) return "Night"
             return "Wide"
         }
+
+        private val LOCAL_ORDER: Map<String, Int> = LOCAL.mapIndexed { index, x -> Pair(x, index) }.toMap()
+
+        private val NIGHT_ORDER: Map<String, Int> = NIGHT.mapIndexed { index, x -> Pair(x, index) }.toMap()
+
+        private val SUBURBAN_ORDER: Map<String, Int> = SUBURBAN.mapIndexed { index, x -> Pair(x, index) }.toMap()
+
+        private fun findDisplayOrder(lineNumber: String): Int {
+            val area = findArea(lineNumber)
+
+            if (area == "Local") return LOCAL_ORDER.getOrDefault(lineNumber, 0)
+            if (area == "Night") return NIGHT_ORDER.getOrDefault(lineNumber, 0)
+            return SUBURBAN_ORDER.getOrDefault(lineNumber, 0)
+        }
     }
 
     fun containsLineNumber(lineNumber: String): Boolean {
-        if (this.lineNumber == lineNumber ) return true
-        return false
-    }
-
-    fun containsLineVariantId(lineVariantId: String): Boolean {
-        if (this.variantId == lineVariantId ) return true
+        if (this.lineNumber == lineNumber) return true
         return false
     }
 }

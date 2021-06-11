@@ -5,13 +5,23 @@ import androidx.lifecycle.*
 import com.example.autotrolejapp.database.LineDatabaseDao
 import com.example.autotrolejapp.database.LineStationDatabaseDao
 import com.example.autotrolejapp.database.StationDatabaseDao
+import com.example.autotrolejapp.entities.Line
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
     val lineDatabaseDao: LineDatabaseDao,
     application: Application
 ) : AndroidViewModel(application) {
 
-    val _lines = lineDatabaseDao.getAll()
+    private var _lines = MutableLiveData<List<Line>>()
+    val lines: LiveData<List<Line>>
+        get() {
+            return _lines
+        }
 
-    //val kbcStations = lineDatabaseDao.getStations("KBC-B-2")
+    init {
+        viewModelScope.launch {
+            _lines.value = lineDatabaseDao.getAll()
+        }
+    }
 }

@@ -1,13 +1,11 @@
 package com.example.autotrolejapp.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,9 +31,7 @@ class HomeFragment : Fragment() {
         }
 
         override fun onRouteClick(lineNumber: String) {
-           //TODO: implementirat nesto >>> BRAP
             val linesBylineNumber = lines.filter {x -> x.containsLineNumber(lineNumber)}
-            Log.d("Iz onRouteClick > linije ", linesBylineNumber.toString())
 
             val lineVariantIds = linesBylineNumber.map{ x -> x.variantId }
             val fragment: LineVariantFragment? = LineVariantFragment.newInstance(lineVariantIds, lineNumber)
@@ -46,7 +42,7 @@ class HomeFragment : Fragment() {
         }
     })
     private val lines: List<Line>
-        get() = viewModel._lines.value.orEmpty()
+        get() = viewModel.lines.value.orEmpty()
 
     private val viewModel: HomeViewModel by lazy {
         val application = requireNotNull(this.activity).application
@@ -93,7 +89,7 @@ class HomeFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-        viewModel._lines.observe(viewLifecycleOwner, Observer {
+        viewModel.lines.observe(viewLifecycleOwner, {
             it?.let{
                 updateList()
             }
@@ -111,7 +107,10 @@ class HomeFragment : Fragment() {
     private fun updateList() {
         val recyclerView: RecyclerView = requireView().findViewById(R.id.lineList)
         val textNoLines: RelativeLayout = requireView().findViewById(R.id.no_lines)
-        val items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
+
+        var items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
+        items = items.sortedBy { x -> x.displayOrder }
+
         if(items.isNotEmpty()) {
             recyclerView.visibility = View.VISIBLE
             textNoLines.visibility = View.GONE

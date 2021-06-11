@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.autotrolejapp.entities.*
 
-@Database(entities = [Line::class, Station::class, LineStation::class, ScheduleLine::class, ScheduleStation::class], version = 3, exportSchema = false)
+@Database(entities = [Line::class, Station::class, LineStation::class, ScheduleLine::class, ScheduleStation::class], version = 4, exportSchema = false)
 abstract class AutotrolejDatabase: RoomDatabase() {
 
     abstract val lineDatabaseDao: LineDatabaseDao
