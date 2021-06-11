@@ -21,7 +21,7 @@ class MainApplicationActivity() : AppCompatActivity() {
 
         val scope = CoroutineScope(newSingleThreadContext("fetch_data"))
         scope.launch {
-            //fetchStatus = fetchData()
+            fetchStatus = fetchData()
             changeActivity()
         }
     }
@@ -33,6 +33,7 @@ class MainApplicationActivity() : AppCompatActivity() {
     }
 
     private suspend fun fetchData(): Boolean {
+        return false
         coroutineScope {
             launch {
                 getAutotrolejLines()

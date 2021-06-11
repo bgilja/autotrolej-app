@@ -3,6 +3,7 @@ package com.example.autotrolejapp.line_variant
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.autotrolejapp.database.LineDatabaseDao
@@ -33,8 +34,15 @@ class LineVariantViewModel(
     var busLocations : List<BusLocation> = listOf()
     var scheduleLinesVariantIds: List<String> = listOf()
 
-    init {
+    private var _selectedBusLocations = MutableLiveData<MutableList<BusLocation>>()
+    val selectedBusLocations : LiveData<MutableList<BusLocation>>
+        get() {
+            return _selectedBusLocations
+        }
 
+    init {
+        // getBusForLine("4-B-0")
+        // getLineForStart(1305106)
     }
 
     fun getBusforWantedLine(lineVariantIds: ArrayList<String>){
@@ -92,7 +100,38 @@ class LineVariantViewModel(
                 pingBusForLocation(allBusesOnWantedLine)
             }
         }
+    }
 
+    fun getBusForLine(lineVariantId: String) {
+        viewModelScope.launch {
+            val data = AutotrolejApi.retrofitService.getCurrentBusLocations()
+            val busLocationsCurrent = formatBusLocationResponse(data)
+
+            val newSelectedBusLocations = mutableListOf<BusLocation>()
+
+            busLocationsCurrent.forEach { busLocation ->
+                val startId = busLocation.startId
+                val busLines = scheduleLineDatabaseDao.getLineByStart(startId)
+
+                val filteredLines = busLines.filter { line ->  line.variantId == lineVariantId }
+                if (filteredLines.isNotEmpty()) {
+                    newSelectedBusLocations.add(busLocation)
+                    Log.d("BUS661", busLocation.toString())
+                    getLineForStart(busLocation.startId)
+                }
+            }
+
+            if (newSelectedBusLocations.size > 0) {
+                _selectedBusLocations.value = newSelectedBusLocations
+            }
+        }
+    }
+
+    fun getLineForStart(startId: Int) {
+        viewModelScope.launch {
+            val lineX = scheduleLineDatabaseDao.getLineByStart(startId)
+            Log.d("BUS661", lineX.toString())
+        }
     }
 
     private fun pingBusForLocation(oldBusLocation: MutableList<BusLocation>): Job {

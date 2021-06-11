@@ -39,21 +39,12 @@ class LineVariantFragment : Fragment() {
         ViewModelProvider(this, viewModelFactory).get(LineVariantViewModel::class.java)
     }
 
-    private val stations: List<Station>
-        get() = viewModel.stations.value.orEmpty()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_line_variant, container, false)
-
         readBundle(arguments)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
@@ -101,8 +92,16 @@ class LineVariantFragment : Fragment() {
 
             //1a
             //viewModel.getBusLine(1304789)
+
             //viewModel.getBusforWantedLine(selectedLineVariantId)
             viewModel.getBusforWantedLine(lineVariantIds)
+
+            viewModel.getBusForLine(selectedLineVariantId)
+            viewModel.selectedBusLocations.observe(viewLifecycleOwner, {
+                it.let {
+                    Log.d("SELECTED BUS LOCATIONS", it.toString())
+                }
+            })
         }
     }
 
@@ -110,8 +109,25 @@ class LineVariantFragment : Fragment() {
         busLocationMarkers.forEach { marker ->
             marker.remove()
         }
+
         if (mapReady) {
             busLocations.forEach { busLocation ->
+                val markerPos = LatLng(
+                    busLocation.longitude!!.toDouble(),
+                    busLocation.latitude!!.toDouble()
+                )
+                val markerName = busLocation.busName
+                busLocationMarkers.add(mMap.addMarker(
+                    MarkerOptions()
+                        .position(markerPos)
+                        .title(markerName)
+                        .icon(bitMapFromVector(R.drawable.ic_red_bus))
+                ))
+            }
+        }
+
+        if (mapReady) {
+            viewModel.selectedBusLocations.value?.forEach { busLocation ->
                 val markerPos = LatLng(
                     busLocation.longitude!!.toDouble(),
                     busLocation.latitude!!.toDouble()
@@ -172,10 +188,6 @@ class LineVariantFragment : Fragment() {
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
     companion object {
         @JvmStatic
         fun newInstance(lineVariantIds: List<String>, lineNumber: String) : LineVariantFragment? {
@@ -188,4 +200,3 @@ class LineVariantFragment : Fragment() {
         }
     }
 }
-

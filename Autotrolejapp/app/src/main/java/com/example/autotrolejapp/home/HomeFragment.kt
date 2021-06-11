@@ -90,15 +90,6 @@ class HomeFragment : Fragment() {
                 updateList()
             }
         })
-
-        // Obrisi
-        /*viewModel.kbcStations.observe(viewLifecycleOwner, {
-            it.let {
-                for (station in it) {
-                    Log.d("KBC STATIONS", station.name)
-                }
-            }
-        })*/
     }
 
     private fun getActiveArea(): String {
@@ -110,7 +101,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateList() {
-        Log.d("IZ UPDATE LIST", "jesi tu")
         val recyclerView: RecyclerView = requireView().findViewById(R.id.lineList)
         val textNoLines: RelativeLayout = requireView().findViewById(R.id.no_lines)
         val items = getDistinctLinesByLineNumber(filterLinesByArea(this.lines, getActiveArea()))
