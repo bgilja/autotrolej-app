@@ -13,29 +13,40 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.entities.BusLocation
-import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.entities.Station
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import kotlinx.coroutines.*
 
 class LineVariantFragment : Fragment() {
-    private lateinit var lineVariantIds: ArrayList<String>
-    private lateinit var lineNumber: String
-    private lateinit var selectedLineVariantId: String
+
+    private var _lineVariantIds = emptyList<String>()
+    var lineVariantIds: List<String>
+        get() {
+            return _lineVariantIds
+        }
+        set(value) {
+            Log.d("CHANGED", "490'292'49'2034930'24'902")
+            _lineVariantIds = value
+
+            viewModel.getBusForLine(value)
+            viewModel.getLineStations(value)
+        }
+
     private lateinit var mMap: GoogleMap
     private var busLocationMarkers: MutableList<Marker> = mutableListOf()
     private var mapReady = false
 
-    private var currentLines: List<Line> = listOf()
+    val updateBusLocationsScope = CoroutineScope(newSingleThreadContext("update_bus_locations"))
+    var doUpdateBusLocation = false
 
     private val viewModel: LineVariantViewModel by lazy {
         val application = requireNotNull(this.activity).application
-        val stationDatabaseDao = AutotrolejDatabase.getInstance(application).stationDatabaseDao
         val lineDatabaseDao = AutotrolejDatabase.getInstance(application).lineDatabaseDao
         val scheduleLineDatabaseDao = AutotrolejDatabase.getInstance(application).scheduleLineDatabaseDao
-        val viewModelFactory = LineVariantViewModelFactory(stationDatabaseDao, lineDatabaseDao, scheduleLineDatabaseDao, application)
+        val viewModelFactory = LineVariantViewModelFactory(lineDatabaseDao, scheduleLineDatabaseDao, application)
         ViewModelProvider(this, viewModelFactory).get(LineVariantViewModel::class.java)
     }
 
@@ -58,72 +69,47 @@ class LineVariantFragment : Fragment() {
         return view
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        this.doUpdateBusLocation = false
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        this.doUpdateBusLocation = true
+
+        this.updateBusLocationsScope.launch {
+            updateBusLocations()
+        }
+    }
+
     private fun readBundle(bundle: Bundle?) {
         if (bundle != null) {
-            //get everything about wanted line, all line variantIDs (lineVariantIds), lineNumber, full lines content (currentLines)
-            lineVariantIds = bundle.getStringArrayList("lineVariantsIds") as ArrayList<String>
-            //Log.d("Iz readBundle sve varijante", lineVariantIds.toString())
-            lineNumber = bundle.getString("lineNumber").toString()
-            //currentLines = lines.filter {x -> x.containsLineNumber(lineNumber)}
+            this.lineVariantIds = bundle.getStringArrayList("lineVariantsIds") as ArrayList<String>
 
-            //Log.d("Iz readBundle sve varijante", currentLines.toString())
-
-
-            selectedLineVariantId = lineVariantIds.first()
-
-            //set observer on live stations (will be fetched through lineVariantId)
-            viewModel.liveStations.observe(viewLifecycleOwner, { station ->
-                updateMap(station)
-            })
-
-            //set observer on live busLines (will be fetched through busLocation.startId)
-            viewModel.busLines.observe(viewLifecycleOwner, { busLine ->
-                showBusLines(busLine)
-            })
-
-            //set observer on liveBusLocations
-            viewModel.allBusesOnWantedLineLive.observe(viewLifecycleOwner, { busLocations ->
-                if(!busLocations.isNullOrEmpty()) updateMapBusLocation(busLocations)
-            })
-
-            //set liveStations so observer can catch a change
-            //TODO: na promjenu selectedLineVariantId kroz neki dropdown pozivat ovu funkciju opet
-            viewModel.getLiveStations(selectedLineVariantId)
-
-            //1a
-            //viewModel.getBusLine(1304789)
-
-            //viewModel.getBusforWantedLine(selectedLineVariantId)
-            viewModel.getBusforWantedLine(lineVariantIds)
-
-            viewModel.getBusForLine(selectedLineVariantId)
             viewModel.selectedBusLocations.observe(viewLifecycleOwner, {
-                it.let {
-                    Log.d("SELECTED BUS LOCATIONS", it.toString())
-                }
+                updateMapBusLocation(it)
             })
+
+            viewModel.getLineStations(lineVariantIds)
+            viewModel.lineStations.observe(viewLifecycleOwner, {
+                updateMap(it)
+            })
+        }
+    }
+
+    private suspend fun updateBusLocations() {
+        while(doUpdateBusLocation) {
+            viewModel.getBusForLine(this.lineVariantIds)
+            delay(10000)
         }
     }
 
     private fun updateMapBusLocation(busLocations: List<BusLocation>) {
         busLocationMarkers.forEach { marker ->
             marker.remove()
-        }
-
-        if (mapReady) {
-            busLocations.forEach { busLocation ->
-                val markerPos = LatLng(
-                    busLocation.longitude!!.toDouble(),
-                    busLocation.latitude!!.toDouble()
-                )
-                val markerName = busLocation.busName
-                busLocationMarkers.add(mMap.addMarker(
-                    MarkerOptions()
-                        .position(markerPos)
-                        .title(markerName)
-                        .icon(bitMapFromVector(R.drawable.ic_red_bus))
-                ))
-            }
         }
 
         if (mapReady) {
@@ -141,10 +127,6 @@ class LineVariantFragment : Fragment() {
                 ))
             }
         }
-    }
-
-    private fun showBusLines(busLine: List<Line>?) {
-        //Log.d("Iz showBusLines AAAA", busLine.toString())
     }
 
 

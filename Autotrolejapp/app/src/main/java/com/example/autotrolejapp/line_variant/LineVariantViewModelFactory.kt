@@ -9,7 +9,6 @@ import com.example.autotrolejapp.database.StationDatabaseDao
 
 
 class LineVariantViewModelFactory(
-    private val stationDatabaseDao: StationDatabaseDao,
     private val lineDatabaseDao: LineDatabaseDao,
     private val scheduleLineDatabaseDao: ScheduleLineDatabaseDao,
     private val application: Application
@@ -19,7 +18,7 @@ class LineVariantViewModelFactory(
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
 
         if (modelClass.isAssignableFrom(LineVariantViewModel::class.java)) {
-            return LineVariantViewModel(stationDatabaseDao, lineDatabaseDao, scheduleLineDatabaseDao, application) as T
+            return LineVariantViewModel(lineDatabaseDao, scheduleLineDatabaseDao, application) as T
         }
 
         throw IllegalArgumentException("Unknown ViewModel class")
