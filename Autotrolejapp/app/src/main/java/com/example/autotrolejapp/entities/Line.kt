@@ -63,4 +63,9 @@ data class Line(
         if (this.lineNumber == lineNumber ) return true
         return false
     }
+
+    fun containsLineVariantId(lineVariantId: String): Boolean {
+        if (this.variantId == lineVariantId ) return true
+        return false
+    }
 }

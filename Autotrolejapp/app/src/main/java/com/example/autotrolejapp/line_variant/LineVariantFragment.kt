@@ -22,10 +22,13 @@ import com.google.android.gms.maps.model.*
 
 class LineVariantFragment : Fragment() {
     private lateinit var lineVariantIds: ArrayList<String>
+    private lateinit var lineNumber: String
     private lateinit var selectedLineVariantId: String
     private lateinit var mMap: GoogleMap
     private var busLocationMarkers: MutableList<Marker> = mutableListOf()
     private var mapReady = false
+
+    private var currentLines: List<Line> = listOf()
 
     private val viewModel: LineVariantViewModel by lazy {
         val application = requireNotNull(this.activity).application
@@ -66,7 +69,15 @@ class LineVariantFragment : Fragment() {
 
     private fun readBundle(bundle: Bundle?) {
         if (bundle != null) {
+            //get everything about wanted line, all line variantIDs (lineVariantIds), lineNumber, full lines content (currentLines)
             lineVariantIds = bundle.getStringArrayList("lineVariantsIds") as ArrayList<String>
+            //Log.d("Iz readBundle sve varijante", lineVariantIds.toString())
+            lineNumber = bundle.getString("lineNumber").toString()
+            //currentLines = lines.filter {x -> x.containsLineNumber(lineNumber)}
+
+            //Log.d("Iz readBundle sve varijante", currentLines.toString())
+
+
             selectedLineVariantId = lineVariantIds.first()
 
             //set observer on live stations (will be fetched through lineVariantId)
@@ -90,12 +101,12 @@ class LineVariantFragment : Fragment() {
 
             //1a
             //viewModel.getBusLine(1304789)
-            viewModel.getBusforWantedLine(selectedLineVariantId)
+            //viewModel.getBusforWantedLine(selectedLineVariantId)
+            viewModel.getBusforWantedLine(lineVariantIds)
         }
     }
 
     private fun updateMapBusLocation(busLocations: List<BusLocation>) {
-        Log.d("Iz updateMapBusLocation", "Uso u updejt map za bus")
         busLocationMarkers.forEach { marker ->
             marker.remove()
         }
@@ -167,13 +178,13 @@ class LineVariantFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(lineVariantIds: List<String>) : LineVariantFragment? {
+        fun newInstance(lineVariantIds: List<String>, lineNumber: String) : LineVariantFragment? {
             val bundle = Bundle()
             bundle.putStringArrayList("lineVariantsIds", (ArrayList<String>(lineVariantIds)))
+            bundle.putString("lineNumber", lineNumber)
             val fragment = LineVariantFragment()
             fragment.arguments = bundle
             return fragment
-
         }
     }
 }

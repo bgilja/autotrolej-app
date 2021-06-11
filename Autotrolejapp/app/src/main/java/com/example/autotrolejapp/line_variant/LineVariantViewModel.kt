@@ -13,6 +13,7 @@ import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.entities.Station
 import com.example.autotrolejapp.network.AutotrolejApi
 import com.example.autotrolejapp.network.formatBusLocationResponse
+import com.google.android.gms.common.util.Strings
 import kotlinx.coroutines.*
 
 class LineVariantViewModel(
@@ -30,27 +31,66 @@ class LineVariantViewModel(
     lateinit var currentLineVariant : String
 
     var busLocations : List<BusLocation> = listOf()
+    var scheduleLinesVariantIds: List<String> = listOf()
 
     init {
 
     }
 
-    fun getBusforWantedLine(lineVariantId: String){
+    fun getBusforWantedLine(lineVariantIds: ArrayList<String>){
         viewModelScope.launch(Dispatchers.IO) {
             val data = AutotrolejApi.retrofitService.getCurrentBusLocations()
             busLocations = formatBusLocationResponse(data)
             busLocations.forEach{ busLocation ->
-                busLines.postValue(scheduleLineDatabaseDao.getLineByStart(busLocation.startId))
-                busLines.value?.forEach{ busLine ->
-                    if(busLine.variantId ==  lineVariantId) {
+                scheduleLinesVariantIds = scheduleLineDatabaseDao.getScheduleLineByStart(busLocation.startId)
+                scheduleLinesVariantIds.forEach{ variantId ->
+                    if(lineVariantIds.contains(variantId)){
+                        //Log.d("Iz getBusforWantedLine trazene varijante", lineVariantIds.toString())
+                        //Log.d("Iz getBusforWantedLine naso varijantu", variantId)
+                        //Log.d("Iz getBusforWantedLine naso bus", busLocation.toString())
                         allBusesOnWantedLine.add(busLocation)
                     }
                 }
-            }
-            allBusesOnWantedLineLive.postValue(allBusesOnWantedLine)
+                /*//Log.d("Iz getBusforWantedLine svaki bus ", busLocation.toString())
+                busLines.postValue(scheduleLineDatabaseDao.getLineByStart(busLocation.startId))
+                busLines.value?.forEach{ busLine ->
+                    Log.d("Iz getBusforWantedLine svaka linija po bus startId-u", busLine.toString())
+                    //this is valid if we pass just one lineVariantId
+                    *//*if(busLine.variantId ==  lineVariantId) {
+                        Log.d("Iz getBusforWantedLine - lineVariant", lineVariantId)
+                        Log.d("Iz getBusforWantedLine get Lines", busLine.toString())
+                        allBusesOnWantedLine.add(busLocation)
+                    }*//*
 
-            //change lat and long for buses that drive on selected lineVariant
-            pingBusForLocation(allBusesOnWantedLine)
+                    //this is valida if we pass array of lineVariantIds
+                    if(lineVariantIds.contains(busLine.variantId)){
+                        Log.d("Iz getBusforWantedLine trazene varijante", lineVariantIds.toString())
+                        Log.d("Iz getBusforWantedLine naso varijantu", busLine.variantId)
+                        Log.d("Iz getBusforWantedLine naso liniiju", busLine.toString())
+                        Log.d("Iz getBusforWantedLine naso bus", busLocation.toString())
+                        allBusesOnWantedLine.add(busLocation)
+
+                        *//*val proba = scheduleLineDatabaseDao.getScheduleLineByStart(1305209)
+                        Log.d("Iz IFA da vidim 661 bus", proba.toString())
+                        val probaSvariant = scheduleLineDatabaseDao.getLineByVariantId("4-B-0")
+                        Log.d("Iz IFA da vidim 4-B-0 liniju", probaSvariant.toString())
+
+                        val proba1 = scheduleLineDatabaseDao.getScheduleLineByStart(1305232)
+                        Log.d("Iz IFA da vidim 747 bus", proba1.toString())
+
+                        val proba2 = scheduleLineDatabaseDao.getScheduleLineByStart(1305158)
+                        Log.d("Iz IFA da vidim 748 bus", proba2.toString())*//*
+
+                        *//*val proba = scheduleLineDatabaseDao.getScheduleLineByStart(1305208)
+                        Log.d("Iz IFA da vidim 661 bus", proba.toString())*//*
+                    }
+                }*/
+            }
+            if(!allBusesOnWantedLine.isNullOrEmpty()) {
+                allBusesOnWantedLineLive.postValue(allBusesOnWantedLine)
+                //change lat and long for buses that drive on selected lineVariant
+                pingBusForLocation(allBusesOnWantedLine)
+            }
         }
 
     }
@@ -67,7 +107,7 @@ class LineVariantViewModel(
                         oldBusLocation.find{ it.busName == newBusLocation.busName}?.longitude = newBusLocation.longitude
                     }
                     allBusesOnWantedLineLive.postValue(oldBusLocation)
-                    Log.d("Iz pingBusForLocation", oldBusLocation.toString())
+                    //Log.d("Iz pingBusForLocation > buses on the line ", oldBusLocation.toString())
                     Log.d(className, "DONE")
                 } catch (e: Exception) {
                     Log.e(className, "FAIL")

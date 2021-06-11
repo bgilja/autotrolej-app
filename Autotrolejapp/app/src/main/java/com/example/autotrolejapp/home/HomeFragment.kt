@@ -35,8 +35,10 @@ class HomeFragment : Fragment() {
         override fun onRouteClick(lineNumber: String) {
            //TODO: implementirat nesto >>> BRAP
             val linesBylineNumber = lines.filter {x -> x.containsLineNumber(lineNumber)}
+            Log.d("Iz onRouteClick > linije ", linesBylineNumber.toString())
+
             val lineVariantIds = linesBylineNumber.map{ x -> x.variantId }
-            val fragment: LineVariantFragment? = LineVariantFragment.newInstance(lineVariantIds)
+            val fragment: LineVariantFragment? = LineVariantFragment.newInstance(lineVariantIds, lineNumber)
             if (fragment != null) {
                 (activity as MainActivity).replaceFragment(fragment)
             }
