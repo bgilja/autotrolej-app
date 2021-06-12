@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.autotrolejapp.database.LineDatabaseDao
 import com.example.autotrolejapp.database.ScheduleLineDatabaseDao
 import com.example.autotrolejapp.entities.BusLocation
+import com.example.autotrolejapp.entities.Line
 import com.example.autotrolejapp.entities.Station
 import com.example.autotrolejapp.network.AutotrolejApi
 import com.example.autotrolejapp.network.formatBusLocationResponse
@@ -23,6 +24,12 @@ class LineVariantViewModel(
     val selectedBusLocations : LiveData<MutableList<BusLocation>>
         get() {
             return _selectedBusLocations
+        }
+
+    private val _filteredLines = MutableLiveData<MutableList<Line>>()
+    val filteredLines: LiveData<MutableList<Line>>
+        get() {
+            return _filteredLines
         }
 
     private var _lineStations = MutableLiveData<List<Station>>()
@@ -75,6 +82,23 @@ class LineVariantViewModel(
             _lineStations.value = stations
         }
     }
+
+    fun getFilteredLinesbylineVariant(lineVariantIds: List<String>){
+        if (lineVariantIds.isEmpty()) return
+
+        viewModelScope.launch {
+            val filteredLines = mutableListOf<Line>()
+
+            lineVariantIds.forEach { lineVariantId ->
+                filteredLines.add(lineDatabaseDao.getByVariantId(lineVariantId))
+            }
+
+            _filteredLines.value = filteredLines
+        }
+
+    }
+
+
 
     companion object {
         const val className = "LineVariantModel"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,5 +12,41 @@
         android:id="@+id/google_map"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="18dp"
+        android:src="@drawable/ic_baseline_filter_list_24"
+        app:backgroundTint="#6588CD" />-->
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="30dp"
+        android:fillViewport="true"
+        android:paddingLeft="10dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:selectionRequired="true"
+        >
+
+        <!--<com.google.android.material.chip.Chip
+            android:id="@+id/chip1"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Proba chipa"
+            android:textSize="15sp"
+            app:chipIcon="@drawable/ic_route" />-->
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
 </FrameLayout>
