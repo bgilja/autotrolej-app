@@ -1,16 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainApplicationActivity">
 
+    <!-- Linear progress indicator -->
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true" />
+
+    <ImageView
+        android:id="@+id/imageview_bus_timetable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
+        android:adjustViewBounds="false"
+        android:alpha="0.6"
+        android:src="@drawable/ic_loading"
+        android:visibility="visible" />
+
     <TextView
+        android:id="@+id/textview"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_below="@id/imageview_bus_timetable"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="Učitavaju se trenutno informacije o busevima"
+        android:textSize="18sp" />
+    <TextView
+        android:id="@+id/textview_under"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_below="@id/textview"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="Budite strpljivi :)"
+        android:textSize="16sp" />
+    <!--<TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Loading..."
         tools:layout_editor_absoluteX="200dp"
-        tools:layout_editor_absoluteY="359dp" />
+        tools:layout_editor_absoluteY="359dp" />-->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
