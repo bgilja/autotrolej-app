@@ -13,15 +13,9 @@ class HomeViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private var _lines = MutableLiveData<List<Line>>()
+    private var _lines = lineDatabaseDao.getAll()
     val lines: LiveData<List<Line>>
         get() {
             return _lines
         }
-
-    init {
-        viewModelScope.launch {
-            _lines.value = lineDatabaseDao.getAll()
-        }
-    }
 }

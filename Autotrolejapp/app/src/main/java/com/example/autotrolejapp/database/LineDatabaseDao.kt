@@ -14,16 +14,16 @@ interface LineDatabaseDao : BaseDao<Line> {
         const val tableName: String = Line.TABLE_NAME
     }
 
-    @Query( "SELECT * from ${Companion.tableName} WHERE identity = :key")
+    @Query( "SELECT * from ${tableName} WHERE identity = :key")
     suspend fun get(key: String): Line
 
-    @Query( "SELECT * from ${Companion.tableName} WHERE variant_id = :line_variant_id LIMIT 1")
+    @Query( "SELECT * from ${tableName} WHERE variant_id = :line_variant_id LIMIT 1")
     suspend fun getByVariantId(line_variant_id: String): Line
 
-    @Query("SELECT * FROM ${Companion.tableName} ORDER BY identity DESC")
-    suspend fun getAll(): List<Line>
+    @Query("SELECT * FROM ${tableName} ORDER BY identity DESC")
+    fun getAll(): LiveData<List<Line>>
 
-    @Query("DELETE FROM ${Companion.tableName}")
+    @Query("DELETE FROM ${tableName}")
     suspend fun clear()
 
     @Query("SELECT DISTINCT B.* FROM (SELECT * FROM ${LineStation.TABLE_NAME} WHERE line_variant_id = :lineVariantId) AS A INNER JOIN ${Station.TABLE_NAME} AS B ON A.station_id = B.id")

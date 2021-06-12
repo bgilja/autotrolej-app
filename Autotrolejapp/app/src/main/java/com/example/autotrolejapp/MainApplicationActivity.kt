@@ -6,20 +6,19 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.network.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.*
 
 class MainApplicationActivity() : AppCompatActivity() {
 
     private var fetchStatus = false
 
+    @ObsoleteCoroutinesApi
+    private val scope = CoroutineScope(newSingleThreadContext("fetch_data"))
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_application)
 
-        val scope = CoroutineScope(newSingleThreadContext("fetch_data"))
         scope.launch {
             // fetchStatus = fetchData()
             changeActivity()

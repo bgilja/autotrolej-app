@@ -33,6 +33,8 @@ data class Station(
 
     fun isValid(): Boolean {
         if (this.latitude == null || this.longitude == null) return false
+        if (this.latitude!! > 47 || this.latitude!! < 44) return false
+        if (this.longitude!! > 16 || this.longitude!! < 12) return false
         return true
     }
 }

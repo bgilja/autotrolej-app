@@ -28,7 +28,6 @@ class LineVariantFragment : Fragment() {
             return _lineVariantIds
         }
         set(value) {
-            Log.d("CHANGED", "490'292'49'2034930'24'902")
             _lineVariantIds = value
 
             viewModel.getBusForLine(value)
