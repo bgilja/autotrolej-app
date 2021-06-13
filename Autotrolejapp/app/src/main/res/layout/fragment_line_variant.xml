@@ -33,20 +33,51 @@
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="Prati Bus: "
+                android:text="Prati bus"
+                android:layout_marginRight="10dp"
                 android:textSize="18sp" />
 
-            <!--<com.google.android.material.chip.Chip
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="top"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="70dp"
+        android:fillViewport="true"
+        android:paddingLeft="10dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_current_location"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:singleSelection="true"
+            app:selectionRequired="false"
+            >
+
+            <TextView
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Prati lokaciju"
+                android:layout_marginRight="10dp"
+                android:textSize="18sp" />
+
+            <com.google.android.material.chip.Chip
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:id="@+id/chip_current_location"
                 app:closeIcon="@drawable/ic_route"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text=""
-                android:checked="true"
+                android:text="Moja lokacija"
+                android:checked="false"
                 android:textSize="15sp"
-                />-->
+                />
+
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
@@ -64,15 +95,6 @@
             android:layout_height="60dp"
             app:selectionRequired="true"
         >
-
-        <!--<com.google.android.material.chip.Chip
-            android:id="@+id/chip1"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Proba chipa"
-            android:textSize="15sp"
-            app:chipIcon="@drawable/ic_route" />-->
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>

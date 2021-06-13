@@ -16,7 +16,7 @@ abstract class LocationHelper {
 
     companion object {
 
-        val defaultInterval: Long = 30 * 1000
+        const val defaultInterval: Long = 30 * 1000
 
         fun checkLocationPermission(context: Context): Boolean {
             if (context.let {

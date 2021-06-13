@@ -46,7 +46,7 @@ open class BaseFragment : Fragment() {
         }
 
     protected lateinit var locationClient: FusedLocationProviderClient
-    protected val mLocationCallback: LocationCallback = object : LocationCallback() {
+    protected open val mLocationCallback: LocationCallback = object : LocationCallback() {
 
         override fun onLocationResult(locationResult: LocationResult) {
             for (location in locationResult.locations) {
@@ -71,9 +71,9 @@ open class BaseFragment : Fragment() {
         setCurrentLocation()
     }
 
-    protected fun setCurrentLocation() {
+    protected fun setCurrentLocation(delayTimeInterval: Long = LocationHelper.defaultInterval) {
         currentLocationMarkers.forEach{ marker -> marker.remove() }
-        locationClient = LocationHelper.getCurrentLocation(requireActivity(), requireContext(), mLocationCallback)
+        locationClient = LocationHelper.getCurrentLocation(requireActivity(), requireContext(), mLocationCallback, delayTimeInterval)
     }
 
     protected fun initMap(mapFragment: SupportMapFragment) {
@@ -98,10 +98,16 @@ open class BaseFragment : Fragment() {
         return mMap.addMarker(getMarkerOptions(markerPos, name, icon))
     }
 
-    protected fun updateMapStations(stations: List<Station>) {
+    protected fun updateMapStations(stations: List<Station>, setCamera: Boolean = false) {
         stationLocationMarkers.forEach { marker -> marker.remove() }
 
         if (mapReady && !stations.isNullOrEmpty()) {
+
+            if(!setCamera){
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(getCenterPoint(stations), 13.5f))
+                // setCamera = true
+            }
+
             val filteredStations: List<Station> = stations.filter { x -> x.isValid() };
             filteredStations.forEach { station ->
                 val marker = createMarker(station.latitude, station.longitude, station.name, R.drawable.ic_bus_stop)
@@ -112,7 +118,18 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    protected fun updateMapBusLocation(busLocations: List<BusLocation>) {
+    private fun getCenterPoint (points: List<Station>): LatLng {
+        var latitude = 0.0
+        var longitude = 0.0
+        val n = points.size
+        for (point in points) {
+            latitude += point.latitude
+            longitude += point.longitude
+        }
+        return LatLng(latitude / n, longitude / n)
+    }
+
+    protected open fun updateMapBusLocation(busLocations: List<BusLocation>) {
         busLocationMarkers.forEach { marker -> marker.remove() }
 
         if (mapReady) {
@@ -125,7 +142,7 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    private fun bitMapFromVector(vectorResID:Int): BitmapDescriptor {
+    fun bitMapFromVector(vectorResID:Int): BitmapDescriptor {
         val vectorDrawable= ContextCompat.getDrawable(requireContext(),vectorResID)
         vectorDrawable!!.setBounds(0,0, vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight)
         val bitmap= Bitmap.createBitmap(vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight,
