@@ -257,24 +257,15 @@ class LineVariantFragment : BaseFragment() {
 
         if (mapReady) {
             busLocations.forEach { busLocation ->
-                val markerPos = LatLng(
-                    busLocation.latitude!!.toDouble(),
-                    busLocation.longitude!!.toDouble()
-                )
                 val markerName = busLocation.busName
-
-                val markerLocation = mMap.addMarker(
-                    MarkerOptions()
-                        .position(markerPos)
-                        .title(markerName)
-                        .icon(bitMapFromVector(R.drawable.ic_red_bus))
-                )
+                val markerLocation = createMarker(busLocation.latitude!!, busLocation.longitude!!, markerName, R.drawable.ic_red_bus)
 
                 if (markerLocation != null) {
                     busLocationMarkers.add(markerLocation)
 
                     if(busChipChecked.isNotEmpty()) {
                         if(busLocation.busName == busChipChecked) {
+                            val markerPos = LatLng(busLocation.latitude!!.toDouble(), busLocation.longitude!!.toDouble())
                             animateMarker(markerLocation, markerPos, false)
                         }
                     }

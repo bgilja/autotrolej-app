@@ -27,6 +27,8 @@ open class BaseFragment : Fragment() {
     protected lateinit var mMap: GoogleMap
     protected var mapReady = false
 
+    private var viewPortCentered = false
+
     protected var stationLocationMarkers: MutableList<Marker> = mutableListOf()
     protected var busLocationMarkers: MutableList<Marker> = mutableListOf()
     protected var currentLocationMarkers: MutableList<Marker> = mutableListOf()
@@ -99,7 +101,7 @@ open class BaseFragment : Fragment() {
             .icon(bitMapFromVector(icon))
     }
 
-    private fun createMarker(latitude: Double, longitude: Double, name: String, icon: Int): Marker? {
+    protected fun createMarker(latitude: Double, longitude: Double, name: String, icon: Int): Marker? {
         val markerPos = LatLng(latitude, longitude)
         return mMap.addMarker(getMarkerOptions(markerPos, name, icon))
     }
@@ -108,6 +110,11 @@ open class BaseFragment : Fragment() {
         stationLocationMarkers.forEach { marker -> marker.remove() }
 
         if (mapReady && !stations.isNullOrEmpty()) {
+            if (!viewPortCentered) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(getCenterPoint(stations), 13f))
+                viewPortCentered = true
+            }
+
             val filteredStations: List<Station> = stations.filter { x -> x.isValid() };
             filteredStations.forEach { station ->
                 val marker = createMarker(station.latitude, station.longitude, station.name, R.drawable.ic_bus_stop)
@@ -116,6 +123,18 @@ open class BaseFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun getCenterPoint (points: List<Station>): LatLng {
+        var latitude = 0.0
+        var longitude = 0.0
+        val n = points.size
+
+        for (point in points) {
+            latitude += point.latitude
+            longitude += point.longitude
+        }
+        return LatLng(latitude / n, longitude / n)
     }
 
     protected open fun updateMapBusLocation(busLocations: List<BusLocation>) {
