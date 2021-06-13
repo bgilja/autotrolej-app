@@ -25,7 +25,7 @@ open class BaseFragment : Fragment() {
     protected var busLocationMarkers: MutableList<Marker> = mutableListOf()
     protected var currentLocationMarkers: MutableList<Marker> = mutableListOf()
 
-    private val mapLocationZoom: Float = 14f
+    private val mapLocationZoom: Float = 15f
 
     protected val rijekaLatitude: Double
         get() {
@@ -104,7 +104,7 @@ open class BaseFragment : Fragment() {
         if (mapReady && !stations.isNullOrEmpty()) {
             val filteredStations: List<Station> = stations.filter { x -> x.isValid() };
             filteredStations.forEach { station ->
-                val marker = createMarker(station.latitude!!, station.longitude!!, station.name, R.drawable.ic_bus_stop)
+                val marker = createMarker(station.latitude, station.longitude, station.name, R.drawable.ic_bus_stop)
                 if (marker != null) {
                     stationLocationMarkers.add(marker)
                 }

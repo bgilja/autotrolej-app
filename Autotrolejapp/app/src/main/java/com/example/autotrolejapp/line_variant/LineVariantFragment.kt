@@ -31,16 +31,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.*
+import java.lang.Runnable
 
 
 class LineVariantFragment : Fragment() {
     private var _lineVariantIds = emptyList<String>()
     private var mapOfLineVariants = HashMap<String, String>()
-    var lineVariantIds: List<String>
+    private var lineVariantIds: List<String>
         get() {
             return _lineVariantIds
         }
@@ -63,11 +61,12 @@ class LineVariantFragment : Fragment() {
     private lateinit var chipGroupBuses: ChipGroup
     private var busChipChecked: String = ""
 
+    @ObsoleteCoroutinesApi
     val updateBusLocationsScope = CoroutineScope(newSingleThreadContext("update_bus_locations"))
     var doUpdateBusLocation = false
 
-    protected var currentLocationMarkers: MutableList<Marker> = mutableListOf()
-    protected var currentLocation: Location? = null
+    private var currentLocationMarkers: MutableList<Marker> = mutableListOf()
+    private var currentLocation: Location? = null
 
     private lateinit var locationClient: FusedLocationProviderClient
     private val mLocationCallback: LocationCallback = object : LocationCallback() {
@@ -132,6 +131,7 @@ class LineVariantFragment : Fragment() {
         this.doUpdateBusLocation = false
     }
 
+    @ObsoleteCoroutinesApi
     override fun onResume() {
         super.onResume()
 
@@ -208,7 +208,7 @@ class LineVariantFragment : Fragment() {
                 }
             }
 
-            chipGroupBuses?.addView(bChip)
+            chipGroupBuses.addView(bChip)
         }
 
     }
@@ -249,24 +249,27 @@ class LineVariantFragment : Fragment() {
         }
 
         if (mapReady) {
-            viewModel.selectedBusLocations.value?.forEach { busLocation ->
+            busLocations.forEach { busLocation ->
                 val markerPos = LatLng(
-                    busLocation.longitude!!.toDouble(),
-                    busLocation.latitude!!.toDouble()
+                    busLocation.latitude!!.toDouble(),
+                    busLocation.longitude!!.toDouble()
                 )
                 val markerName = busLocation.busName
 
-                val markerlocation= mMap.addMarker(
+                val markerLocation = mMap.addMarker(
                     MarkerOptions()
                         .position(markerPos)
                         .title(markerName)
                         .icon(bitMapFromVector(R.drawable.ic_red_bus))
                 )
-                busLocationMarkers.add(markerlocation)
 
-                if(busChipChecked.isNotEmpty()) {
-                    if(busLocation.busName == busChipChecked) {
-                        animateMarker(markerlocation, markerPos, false)
+                if (markerLocation != null) {
+                    busLocationMarkers.add(markerLocation)
+
+                    if(busChipChecked.isNotEmpty()) {
+                        if(busLocation.busName == busChipChecked) {
+                            animateMarker(markerLocation, markerPos, false)
+                        }
                     }
                 }
             }
@@ -279,7 +282,7 @@ class LineVariantFragment : Fragment() {
     ) {
         val handler = Handler()
         val start = SystemClock.uptimeMillis()
-        val proj: Projection = mMap.getProjection()
+        val proj: Projection = mMap.projection
         val startPoint: Point = proj.toScreenLocation(marker.position)
         val startLatLng: LatLng = proj.fromScreenLocation(startPoint)
         val duration: Long = 500
@@ -295,7 +298,7 @@ class LineVariantFragment : Fragment() {
                 val lat = t * toPosition.latitude + (1 - t) * startLatLng.latitude
                 marker.position = LatLng(lat, lng)
 
-                if (mMap != null) mMap.animateCamera(
+                mMap.animateCamera(
                     CameraUpdateFactory.newLatLngZoom(
                         LatLng(lat, lng),
                         15.0f
@@ -306,11 +309,7 @@ class LineVariantFragment : Fragment() {
                     // Post again 16ms later.
                     handler.postDelayed(this, 16)
                 } else {
-                    if (hideMarker) {
-                        marker.isVisible = false
-                    } else {
-                        marker.isVisible = true
-                    }
+                    marker.isVisible = !hideMarker
                 }
             }
         })
@@ -330,34 +329,39 @@ class LineVariantFragment : Fragment() {
             }
             stationsByLineVariant.forEach { station ->
                 val markerPos = LatLng(
-                    station.latitude!!.toDouble(),
-                    station.longitude!!.toDouble()
+                    station.latitude,
+                    station.longitude
                 )
                 val markerName = station.name
-                stationMarkers.add(mMap.addMarker(
+
+                val markerLocation = mMap.addMarker(
                     MarkerOptions()
                         .position(markerPos)
                         .title(markerName)
                         .icon(bitMapFromVector(R.drawable.ic_bus_stop))
-                ))
+                )
+
+                if (markerLocation != null) {
+                    stationMarkers.add(markerLocation)
+                }
             }
         }
     }
 
-    private fun getCenterPoint (points: List<Station>): LatLng? {
+    private fun getCenterPoint (points: List<Station>): LatLng {
         var latitude = 0.0
         var longitude = 0.0
         val n = points.size
         for (point in points) {
-            latitude += point.latitude!!
-            longitude += point.longitude!!
+            latitude += point.latitude
+            longitude += point.longitude
         }
         return LatLng(latitude / n, longitude / n)
     }
 
     private fun bitMapFromVector(vectorResID:Int): BitmapDescriptor {
         val vectorDrawable= ContextCompat.getDrawable(requireContext(),vectorResID)
-        vectorDrawable!!.setBounds(0,0,vectorDrawable!!.intrinsicWidth,vectorDrawable.intrinsicHeight)
+        vectorDrawable!!.setBounds(0,0, vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight)
         val bitmap= Bitmap.createBitmap(vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight,
             Bitmap.Config.ARGB_8888)
         val canvas= Canvas(bitmap)

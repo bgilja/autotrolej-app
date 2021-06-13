@@ -17,10 +17,10 @@ data class Station(
     val shortName: String = "",
 
     @ColumnInfo(name = "longitude")
-    var longitude: Double?,
+    var longitude: Double,
 
     @ColumnInfo(name = "latitude")
-    var latitude: Double?
+    var latitude: Double
 
 ): BaseEntity() {
 
@@ -32,9 +32,7 @@ data class Station(
     }
 
     fun isValid(): Boolean {
-        if (this.latitude == null || this.longitude == null) return false
-        if (this.latitude!! > 47 || this.latitude!! < 44) return false
-        if (this.longitude!! > 16 || this.longitude!! < 12) return false
+        if (longitude == 0.0 || latitude == 0.0) return false
         return true
     }
 }

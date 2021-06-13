@@ -8,7 +8,23 @@ data class StationResponse(
     @Json(name = "StanicaId") val id: Int,
     @Json(name = "Naziv") val name: String,
     @Json(name = "Kratki") val shortName: String,
-    @Json(name = "GpsX") val longitude: Double?,
-    @Json(name = "GpsY") val latitude: Double?
+    @Json(name = "GpsX") val _longitude: Double?,
+    @Json(name = "GpsY") val _latitude: Double?
 ) {
+
+    val longitude: Double
+        get() {
+            if (!isValid()) return 0.0
+            return minOf(_longitude!!, _latitude!!)
+        }
+
+    val latitude: Double
+        get() {
+            if (!isValid()) return 0.0
+            return maxOf(_longitude!!, _latitude!!)
+        }
+
+    fun isValid(): Boolean {
+        return _latitude != null && _longitude != null
+    }
 }

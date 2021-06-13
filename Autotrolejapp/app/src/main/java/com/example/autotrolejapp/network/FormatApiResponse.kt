@@ -3,10 +3,10 @@ package com.example.autotrolejapp.network
 import com.example.autotrolejapp.entities.*
 
 fun formatLineResponse(items: List<LineResponse>) : Pair<List<Line>, List<LineStation>> {
-    var lines = mutableListOf<Line>()
-    var lineStations = mutableListOf<LineStation>()
+    val lines = mutableListOf<Line>()
+    val lineStations = mutableListOf<LineStation>()
 
-    var usedLines = mutableSetOf<String>()
+    val usedLines = mutableSetOf<String>()
 
     for (lineResponse in items) {
         val lineStation = LineStation(lineResponse)
@@ -24,10 +24,10 @@ fun formatLineResponse(items: List<LineResponse>) : Pair<List<Line>, List<LineSt
 }
 
 fun formatStationResponse(items: List<StationResponse>) : List<Station> {
-    var stations = mutableListOf<Station>()
+    val stations = mutableListOf<Station>()
 
     for (stationResponse in items)
-        stations.add(Station(stationResponse))
+        if (stationResponse.isValid()) stations.add(Station(stationResponse))
 
     return stations
 }

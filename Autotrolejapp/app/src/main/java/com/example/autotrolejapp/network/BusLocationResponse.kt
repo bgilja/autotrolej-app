@@ -8,8 +8,18 @@ data class BusLocationResponse(
     @Json(name = "Autobus") val busName: String,
     @Json(name = "PolazakId") val startId: Int,
     @Json(name = "StanicaId") val stationId: Int,
-    @Json(name = "GpsX") val longitude: Double,
-    @Json(name = "GpsY") val latitude: Double,
+    @Json(name = "GpsX") val _longitude: Double,
+    @Json(name = "GpsY") val _latitude: Double,
     @Json(name = "Vrijeme") val timeStr: String
 ) {
+
+    val longitude: Double
+        get() {
+            return minOf(_longitude, _latitude)
+        }
+
+    val latitude: Double
+        get() {
+            return maxOf(_longitude, _latitude)
+        }
 }

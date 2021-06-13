@@ -15,6 +15,7 @@ class MainApplicationActivity() : AppCompatActivity() {
     @ObsoleteCoroutinesApi
     private val scope = CoroutineScope(newSingleThreadContext("fetch_data"))
 
+    @ObsoleteCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_application)
