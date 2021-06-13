@@ -15,7 +15,7 @@
         android:indeterminate="true"
         app:trackThickness="6dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/imageview_bus_timetable"

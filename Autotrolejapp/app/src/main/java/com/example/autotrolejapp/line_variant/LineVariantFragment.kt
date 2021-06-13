@@ -3,6 +3,7 @@ package com.example.autotrolejapp.line_variant
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Point
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
@@ -19,6 +20,10 @@ import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.entities.BusLocation
 import com.example.autotrolejapp.entities.Station
+import com.example.autotrolejapp.helpers.LocationHelper
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.Projection
@@ -56,6 +61,25 @@ class LineVariantFragment : Fragment() {
     val updateBusLocationsScope = CoroutineScope(newSingleThreadContext("update_bus_locations"))
     var doUpdateBusLocation = false
 
+    protected var currentLocationMarkers: MutableList<Marker> = mutableListOf()
+    protected var currentLocation: Location? = null
+
+    private lateinit var locationClient: FusedLocationProviderClient
+    private val mLocationCallback: LocationCallback = object : LocationCallback() {
+
+        override fun onLocationResult(locationResult: LocationResult) {
+            val locations = locationResult.locations.filter { location -> location != null }
+            Log.d("LOCATION UPDATED", locations.size.toString())
+
+            for (location in locations) {
+                if (location != null) {
+                    currentLocation = location
+                }
+            }
+        }
+
+    }
+
     private val viewModel: LineVariantViewModel by lazy {
         val application = requireNotNull(this.activity).application
         val lineDatabaseDao = AutotrolejDatabase.getInstance(application).lineDatabaseDao
@@ -85,8 +109,15 @@ class LineVariantFragment : Fragment() {
         return view
     }
 
+    private fun setCurrentLocation() {
+        currentLocationMarkers.forEach{ marker -> marker.remove() }
+        locationClient = LocationHelper.getCurrentLocation(requireActivity(), requireContext(), mLocationCallback, 5000)
+    }
+
     override fun onPause() {
         super.onPause()
+
+        locationClient.removeLocationUpdates(mLocationCallback)
 
         //TODO: probat sutra novu animiaciju kamere i dal mice bus stvarno sa kad se makne linije
         busLocationMarkers.forEach { marker ->
@@ -98,6 +129,8 @@ class LineVariantFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
+        setCurrentLocation()
 
         this.doUpdateBusLocation = true
 
@@ -189,6 +222,7 @@ class LineVariantFragment : Fragment() {
                 )
                 busLocationMarkers.add(markerlocation)
 
+                Log.d("CURRENT_LOCATION", currentLocation.toString())
                 if(viewModel.selectedBusLocations.value!!.size == 1) {
                     animateMarker(markerlocation, markerPos, false)
                     //Log.d("Iz updateMapBusLocation", "Sad animiraj")
