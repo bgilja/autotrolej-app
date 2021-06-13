@@ -2,10 +2,16 @@ package com.example.autotrolejapp.line_variant
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Point
 import android.os.Bundle
+import android.os.Handler
+import android.os.SystemClock
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Interpolator
+import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,6 +21,7 @@ import com.example.autotrolejapp.entities.BusLocation
 import com.example.autotrolejapp.entities.Station
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.chip.Chip
@@ -80,6 +87,11 @@ class LineVariantFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+
+        //TODO: probat sutra novu animiaciju kamere i dal mice bus stvarno sa kad se makne linije
+        busLocationMarkers.forEach { marker ->
+            marker.remove()
+        }
 
         this.doUpdateBusLocation = false
     }
@@ -162,14 +174,70 @@ class LineVariantFragment : Fragment() {
                     busLocation.latitude!!.toDouble()
                 )
                 val markerName = busLocation.busName
-                busLocationMarkers.add(mMap.addMarker(
+
+                /*busLocationMarkers.add(mMap.addMarker(
                     MarkerOptions()
                         .position(markerPos)
                         .title(markerName)
                         .icon(bitMapFromVector(R.drawable.ic_red_bus))
-                ))
+                ))*/
+                val markerlocation= mMap.addMarker(
+                    MarkerOptions()
+                        .position(markerPos)
+                        .title(markerName)
+                        .icon(bitMapFromVector(R.drawable.ic_red_bus))
+                )
+                busLocationMarkers.add(markerlocation)
+
+                if(viewModel.selectedBusLocations.value!!.size == 1) {
+                    animateMarker(markerlocation, markerPos, false)
+                    //Log.d("Iz updateMapBusLocation", "Sad animiraj")
+                }
             }
         }
+    }
+
+    fun animateMarker(
+        marker: Marker, toPosition: LatLng,
+        hideMarker: Boolean
+    ) {
+        val handler = Handler()
+        val start = SystemClock.uptimeMillis()
+        val proj: Projection = mMap.getProjection()
+        val startPoint: Point = proj.toScreenLocation(marker.position)
+        val startLatLng: LatLng = proj.fromScreenLocation(startPoint)
+        val duration: Long = 500
+        val interpolator: Interpolator = LinearInterpolator()
+        handler.post(object : Runnable {
+            override fun run() {
+                val elapsed = SystemClock.uptimeMillis() - start
+                val t: Float = interpolator.getInterpolation(
+                    elapsed.toFloat()
+                            / duration
+                )
+                val lng = t * toPosition.longitude + (1 - t) * startLatLng.longitude
+                val lat = t * toPosition.latitude + (1 - t) * startLatLng.latitude
+                marker.position = LatLng(lat, lng)
+
+                if (mMap != null) mMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(lat, lng),
+                        15.0f
+                    )
+                )
+
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16)
+                } else {
+                    if (hideMarker) {
+                        marker.isVisible = false
+                    } else {
+                        marker.isVisible = true
+                    }
+                }
+            }
+        })
     }
 
 
