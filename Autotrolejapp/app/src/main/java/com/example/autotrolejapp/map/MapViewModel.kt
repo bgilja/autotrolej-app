@@ -8,6 +8,7 @@ import com.example.autotrolejapp.entities.BusLocation
 import com.example.autotrolejapp.entities.Station
 import com.example.autotrolejapp.network.AutotrolejApi
 import com.example.autotrolejapp.network.formatBusLocationResponse
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -16,7 +17,7 @@ class MapViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private var _stations = stationDatabaseDao.getAll()
+    private val _stations = MutableLiveData(emptyList<Station>())
     val stations: LiveData<List<Station>>
         get() {
             return _stations
@@ -30,6 +31,22 @@ class MapViewModel(
 
     init {
         getAutotrolejBusLocations()
+
+        viewModelScope.launch {
+            val validStations = stationDatabaseDao.getAllSuspend().filter { x -> x.isValid() }
+
+            val stationsSlow = mutableListOf<Station>()
+            Log.d("STATIONS", validStations.size.toString())
+
+            for (station in validStations) {
+                if (stationsSlow.size > 0 && stationsSlow.size % 100 == 0) {
+                    delay(500)
+                    _stations.value = stationsSlow
+                }
+
+                stationsSlow.add(station)
+            }
+        }
     }
 
     private fun getAutotrolejBusLocations() {

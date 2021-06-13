@@ -6,6 +6,7 @@ import android.graphics.Point
 import android.location.Location
 import android.os.Handler
 import android.os.SystemClock
+import android.util.Log
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
@@ -106,7 +107,7 @@ open class BaseFragment : Fragment() {
         return mMap.addMarker(getMarkerOptions(markerPos, name, icon))
     }
 
-    protected fun updateMapStations(stations: List<Station>) {
+    protected open fun updateMapStations(stations: List<Station>) {
         stationLocationMarkers.forEach { marker -> marker.remove() }
 
         if (mapReady && !stations.isNullOrEmpty()) {

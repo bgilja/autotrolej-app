@@ -1,17 +1,22 @@
 package com.example.autotrolejapp.map
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
+import com.example.autotrolejapp.entities.Station
 import com.example.autotrolejapp.helpers.BaseFragment
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Marker
 
 
-class MapFragment : BaseFragment(){
+class MapFragment : BaseFragment() {
+
+    private val stationMarkerMap = mutableMapOf<Int, Marker>()
 
     private val viewModel: MapViewModel by lazy {
         val application = requireNotNull(this.activity).application
@@ -24,9 +29,6 @@ class MapFragment : BaseFragment(){
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        viewPortCentered = true
-
         // Inflate the layout for this fragment
         var rootView = inflater.inflate(R.layout.fragment_map, container, false)
 
@@ -47,6 +49,23 @@ class MapFragment : BaseFragment(){
         })
 
         setCurrentLocation()
+    }
+
+    override fun updateMapStations(stations: List<Station>) {
+        if (mapReady && !stations.isNullOrEmpty()) {
+            val filteredStations: List<Station> = stations.filter { x -> x.isValid() }
+
+            filteredStations.forEach { station ->
+                if (!stationMarkerMap.containsKey(station.id)) {
+                    val marker = createMarker(station.latitude, station.longitude, station.name, R.drawable.ic_bus_stop)
+
+                    if (marker != null) {
+                        stationMarkerMap[station.id] = marker
+                        stationLocationMarkers.add(marker)
+                    }
+                }
+            }
+        }
     }
 
     companion object {
