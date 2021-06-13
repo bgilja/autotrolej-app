@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
-import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
@@ -199,7 +198,7 @@ class LineVariantFragment : BaseFragment() {
             }
 
             bChip.setOnCheckedChangeListener { compoundButton, b ->
-                if(b){
+                if(b) {
                     busChipChecked = compoundButton.text.toString()
                     bChip.isCloseIconVisible = false
                 } else {
@@ -284,50 +283,9 @@ class LineVariantFragment : BaseFragment() {
         }
     }
 
-    private fun animateMarker(
-        marker: Marker, toPosition: LatLng,
-        hideMarker: Boolean
-    ) {
-        val handler = Handler()
-
-        val start = SystemClock.uptimeMillis()
-        val proj: Projection = mMap.projection
-        val startPoint: Point = proj.toScreenLocation(marker.position)
-        val startLatLng: LatLng = proj.fromScreenLocation(startPoint)
-        val duration: Long = 500
-        val interpolator: Interpolator = LinearInterpolator()
-
-        handler.post(object : Runnable {
-            override fun run() {
-                val elapsed = SystemClock.uptimeMillis() - start
-                val t: Float = interpolator.getInterpolation(
-                    elapsed.toFloat()
-                            / duration
-                )
-                val lng = t * toPosition.longitude + (1 - t) * startLatLng.longitude
-                val lat = t * toPosition.latitude + (1 - t) * startLatLng.latitude
-                marker.position = LatLng(lat, lng)
-
-                mMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                        LatLng(lat, lng),
-                        15.0f
-                    )
-                )
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16)
-                } else {
-                    marker.isVisible = !hideMarker
-                }
-            }
-        })
-    }
-
     companion object {
         @JvmStatic
-        fun newInstance(lineVariantIds: List<String>, lineNumber: String) : LineVariantFragment? {
+        fun newInstance(lineVariantIds: List<String>, lineNumber: String) : LineVariantFragment {
             val bundle = Bundle()
 
             bundle.putStringArrayList("lineVariantsIds", (ArrayList<String>(lineVariantIds)))
