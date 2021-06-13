@@ -27,7 +27,7 @@ open class BaseFragment : Fragment() {
     protected lateinit var mMap: GoogleMap
     protected var mapReady = false
 
-    private var viewPortCentered = false
+    protected var viewPortCentered = false
 
     protected var stationLocationMarkers: MutableList<Marker> = mutableListOf()
     protected var busLocationMarkers: MutableList<Marker> = mutableListOf()
@@ -150,7 +150,7 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    fun bitMapFromVector(vectorResID:Int): BitmapDescriptor {
+    private fun bitMapFromVector(vectorResID:Int): BitmapDescriptor {
         val vectorDrawable= ContextCompat.getDrawable(requireContext(),vectorResID)
         vectorDrawable!!.setBounds(0,0, vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight)
         val bitmap= Bitmap.createBitmap(vectorDrawable.intrinsicWidth,vectorDrawable.intrinsicHeight,

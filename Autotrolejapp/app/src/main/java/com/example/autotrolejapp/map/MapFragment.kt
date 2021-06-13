@@ -25,6 +25,8 @@ class MapFragment : BaseFragment(){
         savedInstanceState: Bundle?
     ): View? {
 
+        viewPortCentered = true
+
         // Inflate the layout for this fragment
         var rootView = inflater.inflate(R.layout.fragment_map, container, false)
 

@@ -12,23 +12,27 @@ import kotlinx.coroutines.launch
 
 
 class MapViewModel(
-    stationDatabaseDao: StationDatabaseDao,
+    val stationDatabaseDao: StationDatabaseDao,
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val _stations = stationDatabaseDao.getAll()
+    private var _stations = stationDatabaseDao.getAll()
     val stations: LiveData<List<Station>>
-        get() = _stations
+        get() {
+            return _stations
+        }
 
     private val _busLocations = MutableLiveData<List<BusLocation>>()
     val busLocations: LiveData<List<BusLocation>>
-        get() = _busLocations
+        get() {
+            return _busLocations
+        }
 
     init {
         getAutotrolejBusLocations()
     }
 
-    fun getAutotrolejBusLocations() {
+    private fun getAutotrolejBusLocations() {
         viewModelScope.launch {
             Log.d(className, "Request for autotrolej bus location")
             try {
