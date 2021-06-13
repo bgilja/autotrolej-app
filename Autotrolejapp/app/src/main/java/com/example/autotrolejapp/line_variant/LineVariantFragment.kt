@@ -53,10 +53,15 @@ class LineVariantFragment : Fragment() {
     private lateinit var lineVariantsChanged: MutableList<String>
     private lateinit var mMap: GoogleMap
     private var busLocationMarkers: MutableList<Marker> = mutableListOf()
+    private var selectedBusesFirstTime: MutableList<BusLocation> = mutableListOf()
+    private var selectedBuses: MutableList<BusLocation> = mutableListOf()
+    private var firstTimeFindBuses = false
     private var stationMarkers: MutableList<Marker> = mutableListOf()
     private var mapReady = false
     private var setCamera = false
-    private lateinit var chipGroup: ChipGroup
+    private lateinit var chipGroupLineVariants: ChipGroup
+    private lateinit var chipGroupBuses: ChipGroup
+    private var busChipChecked: String = ""
 
     val updateBusLocationsScope = CoroutineScope(newSingleThreadContext("update_bus_locations"))
     var doUpdateBusLocation = false
@@ -96,7 +101,8 @@ class LineVariantFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_line_variant, container, false)
         readBundle(arguments)
 
-        chipGroup = view.findViewById(R.id.chip_group)
+        chipGroupLineVariants = view.findViewById(R.id.chip_group)
+        chipGroupBuses = view.findViewById(R.id.chip_group_buses)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
         val rijekaLocation = LatLng(45.32,14.44)
@@ -119,7 +125,6 @@ class LineVariantFragment : Fragment() {
 
         locationClient.removeLocationUpdates(mLocationCallback)
 
-        //TODO: probat sutra novu animiaciju kamere i dal mice bus stvarno sa kad se makne linije
         busLocationMarkers.forEach { marker ->
             marker.remove()
         }
@@ -151,10 +156,29 @@ class LineVariantFragment : Fragment() {
                     mapOfLineVariants.put(line.variantId, line.variantName)
                 }
 
-                setChipsDynamicly(chipGroup)
+                setLineVariantChipsDynamicly(chipGroupLineVariants)
             })
 
             viewModel.selectedBusLocations.observe(viewLifecycleOwner, {
+                selectedBuses = it
+
+                if(!firstTimeFindBuses){
+                    selectedBusesFirstTime = selectedBuses
+                    firstTimeFindBuses = true
+                    setBusChipsDynamically()
+                } else {
+                    //check if busLocations have changed, if did set new chips on top // ako se u starom popisu buseva ne nalazi neki novi
+                    selectedBuses.forEach{ newBus ->
+                        if (!(selectedBusesFirstTime.any { it.busName == newBus.busName }) || (selectedBuses.size != selectedBusesFirstTime.size)){
+                            selectedBusesFirstTime = selectedBuses
+                            //ako u toj novoj listi sad ne postoji taj bus kojeg si trenutno pratio
+                            if(!(selectedBusesFirstTime.any{it.busName == busChipChecked})) busChipChecked = ""
+                            chipGroupBuses.removeViews(1, chipGroupBuses.childCount-1)
+                            setBusChipsDynamically()
+                        }
+                    }
+                }
+
                 updateMapBusLocation(it)
             })
 
@@ -165,7 +189,31 @@ class LineVariantFragment : Fragment() {
         }
     }
 
-    private fun setChipsDynamicly(chipGroup: ChipGroup?) {
+    private fun setBusChipsDynamically() {
+        selectedBusesFirstTime.forEach { bus ->
+            val bChip = this.layoutInflater.inflate(R.layout.bus_chip, chipGroupBuses, false) as Chip
+            bChip.text = bus.busName
+
+            if(busChipChecked.isNotEmpty() && busChipChecked == bus.busName) {
+                bChip.isChecked = true
+            }
+
+            bChip.setOnCheckedChangeListener { compoundButton, b ->
+                if(b){
+                    busChipChecked = compoundButton.text.toString()
+                    bChip.isCloseIconVisible = false
+                } else {
+                    if(busChipChecked == compoundButton.text.toString()) busChipChecked = ""
+                    bChip.isCloseIconVisible = true
+                }
+            }
+
+            chipGroupBuses?.addView(bChip)
+        }
+
+    }
+
+    private fun setLineVariantChipsDynamicly(chipGroup: ChipGroup?) {
         this.lineVariantIds.forEach() { variant ->
             val mChip = this.layoutInflater.inflate(R.layout.line_variant_chip, chipGroup, false) as Chip
             mChip.text = mapOfLineVariants[variant]
@@ -191,7 +239,7 @@ class LineVariantFragment : Fragment() {
     private suspend fun updateBusLocations() {
         while(doUpdateBusLocation) {
             viewModel.getBusForLine(this.lineVariantIds)
-            delay(7000)
+            delay(5000)
         }
     }
 
@@ -208,12 +256,6 @@ class LineVariantFragment : Fragment() {
                 )
                 val markerName = busLocation.busName
 
-                /*busLocationMarkers.add(mMap.addMarker(
-                    MarkerOptions()
-                        .position(markerPos)
-                        .title(markerName)
-                        .icon(bitMapFromVector(R.drawable.ic_red_bus))
-                ))*/
                 val markerlocation= mMap.addMarker(
                     MarkerOptions()
                         .position(markerPos)
@@ -222,10 +264,10 @@ class LineVariantFragment : Fragment() {
                 )
                 busLocationMarkers.add(markerlocation)
 
-                Log.d("CURRENT_LOCATION", currentLocation.toString())
-                if(viewModel.selectedBusLocations.value!!.size == 1) {
-                    animateMarker(markerlocation, markerPos, false)
-                    //Log.d("Iz updateMapBusLocation", "Sad animiraj")
+                if(busChipChecked.isNotEmpty()) {
+                    if(busLocation.busName == busChipChecked) {
+                        animateMarker(markerlocation, markerPos, false)
+                    }
                 }
             }
         }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.MaterialComponents.Chip.Filter"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:text=""
+    android:textColor="#FBFBFB"
+    android:textColorHint="#FBFBFB"
+    android:textSize="15sp"
+    app:chipStrokeColor="#FFFFFF"
+    app:chipSurfaceColor="#89C1E6"
+    app:closeIcon="@drawable/ic_bus_black"
+    app:closeIconVisible="true" />

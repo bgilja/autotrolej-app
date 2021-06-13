@@ -13,14 +13,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floating_action_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="18dp"
-        android:src="@drawable/ic_baseline_filter_list_24"
-        app:backgroundTint="#6588CD" />-->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="top"
+        android:layout_marginBottom="30dp"
+        android:fillViewport="true"
+        android:paddingLeft="10dp">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_buses"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:singleSelection="true"
+            app:selectionRequired="false"
+            >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Prati Bus: "
+                android:textSize="18sp" />
+
+            <!--<com.google.android.material.chip.Chip
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                app:closeIcon="@drawable/ic_route"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text=""
+                android:checked="true"
+                android:textSize="15sp"
+                />-->
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
