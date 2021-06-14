@@ -21,7 +21,7 @@ class MainApplicationActivity() : AppCompatActivity() {
         setContentView(R.layout.activity_main_application)
 
         scope.launch {
-            // fetchStatus = fetchData()
+            //fetchStatus = fetchData()
             changeActivity()
         }
     }

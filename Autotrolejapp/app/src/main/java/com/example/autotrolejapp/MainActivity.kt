@@ -14,7 +14,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val ID_HOME = HomeFragment.FRAGMENT_ID
         private const val ID_MAP = MapFragment.FRAGMENT_ID
-        private const val ID_BUS = BusFragment.FRAGMENT_ID
     }
 
     override fun onBackPressed() {
@@ -26,8 +25,6 @@ class MainActivity : AppCompatActivity() {
             bottomNavigation.show(ID_HOME)
         } else if (fragment is MapFragment) {
             bottomNavigation.show(ID_MAP)
-        } else if (fragment is BusFragment) {
-            bottomNavigation.show(ID_BUS)
         }
     }
 
@@ -36,9 +33,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val bottomNavigation = findViewById<MeowBottomNavigation>(R.id.bottomNavigation)
-        bottomNavigation.add(MeowBottomNavigation.Model(ID_HOME, R.drawable.ic_baseline_home_24))
+        bottomNavigation.add(MeowBottomNavigation.Model(ID_HOME, R.drawable.ic_baseline_directions_bus_24))
         bottomNavigation.add(MeowBottomNavigation.Model(ID_MAP, R.drawable.ic_baseline_map_24))
-        bottomNavigation.add(MeowBottomNavigation.Model(ID_BUS, R.drawable.ic_baseline_directions_bus_24))
 
         bottomNavigation.show(ID_HOME)
         replaceFragment(HomeFragment.newInstance())
@@ -55,16 +51,10 @@ class MainActivity : AppCompatActivity() {
     private fun activateFragment(fragmentId: Int) {
         when(fragmentId) {
             ID_HOME -> {
-                Toast.makeText(this@MainActivity, "Home fragment", Toast.LENGTH_SHORT).show()
                 replaceFragment(HomeFragment.newInstance())
             }
             ID_MAP -> {
-                Toast.makeText(this@MainActivity, "Map fragment", Toast.LENGTH_SHORT).show()
                 replaceFragment(MapFragment.newInstance())
-            }
-            ID_BUS -> {
-                Toast.makeText(this@MainActivity, "Bus fragment", Toast.LENGTH_SHORT).show()
-                replaceFragment(BusFragment.newInstance())
             }
         }
     }
