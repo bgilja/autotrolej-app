@@ -117,7 +117,6 @@ class LineVariantFragment : BaseFragment() {
                 Log.e("MY LOCATION", e.toString())
             }
 
-            //currentLocationChip.isChecked = isCheckedFab
             followLocation = isCheckedFab
 
             if(isCheckedFab){
@@ -125,6 +124,8 @@ class LineVariantFragment : BaseFragment() {
             }else{
                 fab.shrink()
             }
+
+            //Log.d("Iz observanja pracenja sebe", isCheckedFab.toString())
         }
     }
 

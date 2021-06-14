@@ -1,16 +1,19 @@
 package com.example.autotrolejapp.station
 
+import android.R.string
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
-import com.example.autotrolejapp.line_variant.LineVariantViewModel
-import com.example.autotrolejapp.line_variant.LineVariantViewModelFactory
+import com.example.autotrolejapp.entities.ScheduleStation
 
 
 private const val ARG_PARAM1 = "param1"
@@ -18,6 +21,7 @@ private const val ARG_PARAM1 = "param1"
 class StationFragment : Fragment() {
     private var stationIdentity: Long = -1
 
+    private val adapter = StationsAdapter()
 
     private val viewModel: StationViewModel by lazy {
         val application = requireNotNull(this.activity).application
@@ -42,6 +46,17 @@ class StationFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_station, container, false)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val recyclerView: RecyclerView = view.findViewById(R.id.stationScheduleList)
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = layoutManager
+
+        recyclerView.adapter = adapter
 
         viewModel.getStation(stationIdentity)
         viewModel.station.observe(viewLifecycleOwner, {
@@ -52,14 +67,30 @@ class StationFragment : Fragment() {
         viewModel.scheduleStations.observe(viewLifecycleOwner, {
             if (it != null) {
                 Log.d("SCHEDULE STATIONS", it.size.toString())
-
                 val firstItem = it.first()
                 Log.d("SCHEDULE STATION", firstItem.toString())
+
+                updateScheduleStations(it)
             }
         })
-
-        return view
     }
+
+    private fun updateScheduleStations(listOfScheduledStations: List<ScheduleStation>) {
+        val recyclerView: RecyclerView = requireView().findViewById(R.id.stationScheduleList)
+        val noScheduledStations: RelativeLayout = requireView().findViewById(R.id.no_scheduleStations)
+
+
+        if(listOfScheduledStations.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+            noScheduledStations.visibility = View.GONE
+        } else {
+            recyclerView.visibility = View.GONE
+            noScheduledStations.visibility = View.VISIBLE
+        }
+        //TODO: trenutno prosljedujemo ScheduleStation trebali bi liniju bas ili barem jos i liniju dodat
+        this.adapter.data = listOfScheduledStations
+    }
+
 
     companion object {
 
