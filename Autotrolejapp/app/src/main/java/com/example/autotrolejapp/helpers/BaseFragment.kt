@@ -6,13 +6,16 @@ import android.graphics.Point
 import android.location.Location
 import android.os.Handler
 import android.os.SystemClock
+import android.util.Log
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.autotrolejapp.MainActivity
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.entities.BusLocation
 import com.example.autotrolejapp.entities.Station
+import com.example.autotrolejapp.station.StationFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -21,13 +24,14 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 open class BaseFragment : Fragment() {
 
     protected lateinit var mMap: GoogleMap
     protected var mapReady = false
 
-    protected var viewPortCentered = false
+    private var viewPortCentered = false
 
     protected var stationLocationMarkers: MutableList<Marker> = mutableListOf()
     protected var busLocationMarkers: MutableList<Marker> = mutableListOf()
@@ -52,6 +56,8 @@ open class BaseFragment : Fragment() {
             location.longitude = rijekaLongitude
             return location
         }
+
+    private var currentStations = emptyList<Station>()
 
     protected var currentLocation: Location? = null
     protected lateinit var locationClient: FusedLocationProviderClient
@@ -90,8 +96,36 @@ open class BaseFragment : Fragment() {
                 LocationHelper.checkLocationPermission(it)
                 mMap.isMyLocationEnabled = true
                 mMap.uiSettings.isMyLocationButtonEnabled = setMyLocationButtonEnabled
+
+                mMap.setOnMarkerClickListener { marker ->
+
+                    val station = findStationById(marker.title.toLong())
+
+                    if (station != null) {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(station.name)
+                            .setMessage("Želim vidjeti detaljni prikaz stanice")
+                            .setNegativeButton("Ne") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .setPositiveButton("Da, prikaži") { _, _ ->
+                                val fragment: StationFragment = StationFragment.newInstance(station.identity)
+                                (activity as MainActivity).replaceFragment(fragment)
+
+                            }
+                            .show()
+                    } else {
+                        Log.e("STATION", "Station is null")
+                    }
+
+                    true
+                }
             }
         }
+    }
+
+    private fun findStationById(stationIdentity: Long): Station? {
+        return currentStations.find { station -> station.identity ==  stationIdentity }
     }
 
     private fun getMarkerOptions(position: LatLng, name: String, icon: Int): MarkerOptions {
@@ -107,6 +141,8 @@ open class BaseFragment : Fragment() {
     }
 
     protected open fun updateMapStations(stations: List<Station>) {
+        currentStations = stations
+
         stationLocationMarkers.forEach { marker -> marker.remove() }
         stationLocationMarkers.clear()
 
@@ -118,7 +154,7 @@ open class BaseFragment : Fragment() {
 
             val filteredStations: List<Station> = stations.filter { x -> x.isValid() };
             filteredStations.forEach { station ->
-                val marker = createMarker(station.latitude, station.longitude, station.name, R.drawable.ic_bus_stop)
+                val marker = createMarker(station.latitude, station.longitude, station.identity.toString(), R.drawable.ic_bus_stop)
                 if (marker != null) {
                     stationLocationMarkers.add(marker)
                 }

@@ -13,7 +13,7 @@ interface StationDatabaseDao : BaseDao<Station> {
     }
 
     @Query( "SELECT * from ${Companion.tableName} WHERE identity = :key")
-    suspend fun get(key: String): Station
+    suspend fun get(key: Long): Station
 
     @Query("SELECT * FROM ${Companion.tableName} ORDER BY identity DESC")
     fun getAll(): LiveData<List<Station>>
