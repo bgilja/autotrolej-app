@@ -1,6 +1,5 @@
 package com.example.autotrolejapp.station
 
-import android.R.string
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater

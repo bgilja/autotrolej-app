@@ -1,5 +1,7 @@
 package com.example.autotrolejapp.home
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,15 +32,18 @@ class HomeFragment : Fragment() {
             }
         }
 
+        @SuppressLint("CommitPrefEdits")
         override fun onRouteClick(lineNumber: String) {
             val linesBylineNumber = lines.filter {x -> x.containsLineNumber(lineNumber)}
 
             val lineVariantIds = linesBylineNumber.map{ x -> x.variantId }
-            val fragment: LineVariantFragment? = LineVariantFragment.newInstance(lineVariantIds, lineNumber)
-            if (fragment != null) {
-                (activity as MainActivity).replaceFragment(fragment)
-            }
+            val fragment: LineVariantFragment = LineVariantFragment.newInstance(lineVariantIds, lineNumber)
+            (activity as MainActivity).replaceFragment(fragment)
 
+            val editor = activity?.applicationContext?.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)?.edit()
+            editor?.putStringSet("selectedLineVariants" , lineVariantIds.toSet())
+            editor?.putString("selectedLineNumber", lineNumber)
+            editor?.apply()
         }
     })
     private val lines: List<Line>

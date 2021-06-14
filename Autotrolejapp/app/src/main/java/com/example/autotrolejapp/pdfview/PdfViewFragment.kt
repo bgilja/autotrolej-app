@@ -27,6 +27,7 @@ class PdfViewFragment : Fragment() {
     private var lineId: String? = null
 
     companion object {
+
         fun newInstance(lineId: String?): PdfViewFragment? {
             val bundle = Bundle()
             bundle.putString("lineId", lineId)

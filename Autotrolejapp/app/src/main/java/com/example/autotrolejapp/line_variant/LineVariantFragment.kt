@@ -1,6 +1,5 @@
 package com.example.autotrolejapp.line_variant
 
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -213,6 +212,7 @@ class LineVariantFragment : BaseFragment() {
 
                 fab.shrink()
                 isCheckedFab = false
+                followLocation = false
             }
 
             chipGroupBuses.addView(bChip)
@@ -281,6 +281,7 @@ class LineVariantFragment : BaseFragment() {
     }
 
     companion object {
+
         @JvmStatic
         fun newInstance(lineVariantIds: List<String>, lineNumber: String) : LineVariantFragment {
             val bundle = Bundle()

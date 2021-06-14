@@ -1,15 +1,18 @@
 package com.example.autotrolejapp
 
+import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
 import com.example.autotrolejapp.helpers.LocationHelper
 import com.example.autotrolejapp.home.HomeFragment
+import com.example.autotrolejapp.line_variant.LineVariantFragment
 import com.example.autotrolejapp.map.MapFragment
 
 class MainActivity : AppCompatActivity() {
+
+    var activeFragment = HomeFragment.FRAGMENT_ID
 
     companion object {
         private const val ID_HOME = HomeFragment.FRAGMENT_ID
@@ -18,6 +21,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
+
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            finish()
+        }
+
         val fragment = supportFragmentManager.fragments.last()
 
         val bottomNavigation = findViewById<MeowBottomNavigation>(R.id.bottomNavigation)
@@ -25,6 +33,17 @@ class MainActivity : AppCompatActivity() {
             bottomNavigation.show(ID_HOME)
         } else if (fragment is MapFragment) {
             bottomNavigation.show(ID_MAP)
+        }
+
+        if (fragment is LineVariantFragment) {
+            val editor = applicationContext.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE)
+            val lineVariantIds = editor.getStringSet("selectedLineVariants", emptySet()).orEmpty().toList()
+            val lineNumber = editor.getString("selectedLineNumber", "").orEmpty()
+
+            supportFragmentManager.popBackStack()
+
+            val newFragment: LineVariantFragment = LineVariantFragment.newInstance(lineVariantIds, lineNumber)
+            replaceFragment(newFragment)
         }
     }
 
@@ -49,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun activateFragment(fragmentId: Int) {
+        activeFragment = fragmentId
         when(fragmentId) {
             ID_HOME -> {
                 replaceFragment(HomeFragment.newInstance())
