@@ -1,5 +1,6 @@
 package com.example.autotrolejapp.line_variant
 
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 
 
@@ -43,9 +45,11 @@ class LineVariantFragment : BaseFragment() {
 
     private lateinit var chipGroupLineVariants: ChipGroup
     private lateinit var chipGroupBuses: ChipGroup
+    private lateinit var fab: ExtendedFloatingActionButton
     private var busChipChecked: String = ""
 
     private var followLocation = true
+    private var isCheckedFab = false
 
     @ObsoleteCoroutinesApi
     val updateBusLocationsScope = CoroutineScope(newSingleThreadContext("update_bus_locations"))
@@ -95,22 +99,32 @@ class LineVariantFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val currentLocationChip = view.findViewById<Chip>(R.id.chip_current_location)
-        followLocation = currentLocationChip.isChecked
+        fab = view.findViewById<ExtendedFloatingActionButton>(R.id.floating_action_button)
+        fab.shrink()
+        followLocation = isCheckedFab
 
-        currentLocationChip.setOnCheckedChangeListener { _, isChecked ->
 
+        fab.setOnClickListener{
             val checkedChipId = chipGroupBuses.checkedChipId
+
+            isCheckedFab = !isCheckedFab
 
             try {
                 val checkedChip = chipGroupBuses.findViewById<Chip>(checkedChipId)
                 checkedChip.isChecked = false
+                isCheckedFab = true
             } catch (e: Exception) {
                 Log.e("MY LOCATION", e.toString())
             }
 
-            currentLocationChip.isChecked = isChecked
-            followLocation = isChecked
+            //currentLocationChip.isChecked = isCheckedFab
+            followLocation = isCheckedFab
+
+            if(isCheckedFab){
+                fab.extend()
+            }else{
+                fab.shrink()
+            }
         }
     }
 
@@ -196,8 +210,8 @@ class LineVariantFragment : BaseFragment() {
                     bChip.isCloseIconVisible = true
                 }
 
-                val currentLocationChip = view?.findViewById<Chip>(R.id.chip_current_location)
-                currentLocationChip?.isChecked = false
+                fab.shrink()
+                isCheckedFab = false
             }
 
             chipGroupBuses.addView(bChip)
