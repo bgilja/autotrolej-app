@@ -1,7 +1,6 @@
 package com.example.autotrolejapp.map
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,9 +28,7 @@ class MapFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        var rootView = inflater.inflate(R.layout.fragment_map, container, false)
-
+        val rootView = inflater.inflate(R.layout.fragment_map, container, false)
         val mapFragment =  childFragmentManager.findFragmentById(R.id.googleMap) as SupportMapFragment
         initMap(mapFragment)
         return rootView
@@ -47,8 +44,18 @@ class MapFragment : BaseFragment() {
         viewModel.busLocations.observe(viewLifecycleOwner, {
             updateMapBusLocation(it)
         })
+    }
 
-        setCurrentLocation()
+    override fun onPause() {
+        super.onPause()
+
+        locationClient.removeLocationUpdates(mLocationCallback)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        setCurrentLocation(30 * 1000)
     }
 
     override fun updateMapStations(stations: List<Station>) {

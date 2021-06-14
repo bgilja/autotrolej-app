@@ -1,16 +1,10 @@
 package com.example.autotrolejapp.line_variant
 
-import android.graphics.Point
-import android.location.Location
 import android.os.Bundle
-import android.os.Handler
-import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Interpolator
-import android.view.animation.LinearInterpolator
 import androidx.lifecycle.ViewModelProvider
 import com.example.autotrolejapp.R
 import com.example.autotrolejapp.database.AutotrolejDatabase
@@ -18,14 +12,11 @@ import com.example.autotrolejapp.entities.BusLocation
 import com.example.autotrolejapp.helpers.BaseFragment
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.*
-import java.lang.Exception
 
 
 class LineVariantFragment : BaseFragment() {
@@ -61,7 +52,6 @@ class LineVariantFragment : BaseFragment() {
     var doUpdateBusLocation = false
 
     private var delayTimeInterval: Long = 5000
-    private var currentLocation: Location? = null
 
     override val mLocationCallback: LocationCallback = object : LocationCallback() {
 
@@ -97,7 +87,7 @@ class LineVariantFragment : BaseFragment() {
         chipGroupBuses = view.findViewById(R.id.chip_group_buses)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
-        initMap(mapFragment)
+        initMap(mapFragment, false)
 
         return view
     }
@@ -247,8 +237,9 @@ class LineVariantFragment : BaseFragment() {
     }
 
     override fun updateMapBusLocation(busLocations: List<BusLocation>) {
-        if (followLocation && currentLocation != null) {
-            updateCurrentLocation(currentLocation!!, true)
+
+        if(currentLocation != null) {
+            updateCurrentLocation(currentLocation!!, followLocation)
         }
 
         busLocationMarkers.forEach { marker ->

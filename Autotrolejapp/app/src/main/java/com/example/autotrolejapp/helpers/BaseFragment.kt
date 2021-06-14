@@ -6,7 +6,6 @@ import android.graphics.Point
 import android.location.Location
 import android.os.Handler
 import android.os.SystemClock
-import android.util.Log
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
@@ -32,16 +31,16 @@ open class BaseFragment : Fragment() {
 
     protected var stationLocationMarkers: MutableList<Marker> = mutableListOf()
     protected var busLocationMarkers: MutableList<Marker> = mutableListOf()
-    protected var currentLocationMarkers: MutableList<Marker> = mutableListOf()
+    private var currentLocationMarkers: MutableList<Marker> = mutableListOf()
 
     private val mapLocationZoom: Float = 15f
 
-    protected val rijekaLatitude: Double
+    private val rijekaLatitude: Double
         get() {
             return 45.3318399
         }
 
-    protected val rijekaLongitude: Double
+    private val rijekaLongitude: Double
         get() {
             return 14.4443319
         }
@@ -54,13 +53,19 @@ open class BaseFragment : Fragment() {
             return location
         }
 
+    protected var currentLocation: Location? = null
     protected lateinit var locationClient: FusedLocationProviderClient
     protected open val mLocationCallback: LocationCallback = object : LocationCallback() {
 
         override fun onLocationResult(locationResult: LocationResult) {
             for (location in locationResult.locations) {
                 if (location != null) {
-                    val moveCamera = !currentLocationMarkers.any()
+                    var moveCamera = false
+                    if (currentLocation == null) {
+                        moveCamera = true
+                    }
+
+                    currentLocation = location
                     updateCurrentLocation(location, moveCamera)
                 }
             }
@@ -68,30 +73,24 @@ open class BaseFragment : Fragment() {
 
     }
 
-    override fun onPause() {
-        super.onPause()
-
-        locationClient.removeLocationUpdates(mLocationCallback)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        setCurrentLocation()
-    }
-
     protected fun setCurrentLocation(delayTimeInterval: Long = LocationHelper.defaultInterval) {
         currentLocationMarkers.forEach{ marker -> marker.remove() }
         locationClient = LocationHelper.getCurrentLocation(requireActivity(), requireContext(), mLocationCallback, delayTimeInterval)
     }
 
-    protected fun initMap(mapFragment: SupportMapFragment) {
+    protected fun initMap(mapFragment: SupportMapFragment, setMyLocationButtonEnabled: Boolean = true) {
         mapFragment.getMapAsync { googleMap ->
             mMap = googleMap
             mapReady = true
 
             val markerPos = LatLng(rijekaLatitude, rijekaLongitude)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerPos, mapLocationZoom))
+
+            context?.let {
+                LocationHelper.checkLocationPermission(it)
+                mMap.isMyLocationEnabled = true
+                mMap.uiSettings.isMyLocationButtonEnabled = setMyLocationButtonEnabled
+            }
         }
     }
 
@@ -109,6 +108,7 @@ open class BaseFragment : Fragment() {
 
     protected open fun updateMapStations(stations: List<Station>) {
         stationLocationMarkers.forEach { marker -> marker.remove() }
+        stationLocationMarkers.clear()
 
         if (mapReady && !stations.isNullOrEmpty()) {
             if (!viewPortCentered) {
@@ -140,6 +140,7 @@ open class BaseFragment : Fragment() {
 
     protected open fun updateMapBusLocation(busLocations: List<BusLocation>) {
         busLocationMarkers.forEach { marker -> marker.remove() }
+        busLocationMarkers.clear()
 
         if (mapReady) {
             busLocations.forEach { busLocation ->
@@ -163,17 +164,15 @@ open class BaseFragment : Fragment() {
 
     protected fun updateCurrentLocation(location: Location, moveCamera: Boolean = false) {
         currentLocationMarkers.forEach { marker -> marker.remove() }
+        currentLocationMarkers.clear()
 
-        if (mapReady) {
-            val marker = createMarker(location.latitude, location.longitude, "Me", R.drawable.ic_current_position)
-            if (marker != null) {
-                currentLocationMarkers.add(marker)
-
-                if (moveCamera) {
-                    val markerPos = LatLng(location.latitude, location.longitude)
-                    animateMarker(marker, markerPos, false)
-                }
-            }
+        if (mapReady && moveCamera) {
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(location.latitude, location.longitude),
+                    15.0f
+                )
+            )
         }
     }
 
