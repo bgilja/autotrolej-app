@@ -1,7 +1,6 @@
 package com.example.autotrolejapp.station
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +34,6 @@ class StationFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             stationIdentity = it.getLong(ARG_PARAM1)
-            Log.d("STATION", stationIdentity.toString())
         }
     }
 
@@ -44,8 +42,7 @@ class StationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_station, container, false)
-        return view
+        return inflater.inflate(R.layout.fragment_station, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,16 +56,11 @@ class StationFragment : Fragment() {
 
         viewModel.getStation(stationIdentity)
         viewModel.station.observe(viewLifecycleOwner, {
-            Log.d("STATION", it.toString())
             viewModel.getScheduleStations(it.id)
         })
 
         viewModel.scheduleStations.observe(viewLifecycleOwner, {
             if (it != null) {
-                Log.d("SCHEDULE STATIONS", it.size.toString())
-                val firstItem = it.first()
-                Log.d("SCHEDULE STATION", firstItem.toString())
-
                 updateScheduleStations(it)
             }
         })

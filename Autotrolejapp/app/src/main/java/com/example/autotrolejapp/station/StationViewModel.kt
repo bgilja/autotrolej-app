@@ -1,7 +1,6 @@
 package com.example.autotrolejapp.station
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -39,7 +38,6 @@ class StationViewModel(
     fun getScheduleStations(stationId: Int) {
         viewModelScope.launch {
             _scheduleStations.value = scheduleStationDatabaseDao.getByStationId(stationId)
-            Log.d("SCHEUDLE STATIONS", _scheduleStations.value?.size.toString())
         }
     }
 

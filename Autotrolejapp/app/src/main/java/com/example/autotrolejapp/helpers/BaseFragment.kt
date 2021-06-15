@@ -25,6 +25,7 @@ import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.lang.Exception
 
 open class BaseFragment : Fragment() {
 
@@ -57,7 +58,7 @@ open class BaseFragment : Fragment() {
             return location
         }
 
-    private var currentStations = emptyList<Station>()
+    protected var currentStations = mutableListOf<Station>()
 
     protected var currentLocation: Location? = null
     protected lateinit var locationClient: FusedLocationProviderClient
@@ -99,7 +100,13 @@ open class BaseFragment : Fragment() {
 
                 mMap.setOnMarkerClickListener { marker ->
 
-                    val station = findStationById(marker.title.toLong())
+                    var station: Station? = null
+
+                    try {
+                        station = findStationById(marker.title.toLong())
+                    } catch (e: Exception) {
+                        Log.e("Find station by id", e.toString())
+                    }
 
                     if (station != null) {
                         MaterialAlertDialogBuilder(requireContext())
@@ -141,7 +148,7 @@ open class BaseFragment : Fragment() {
     }
 
     protected open fun updateMapStations(stations: List<Station>) {
-        currentStations = stations
+        currentStations = stations.toMutableList()
 
         stationLocationMarkers.forEach { marker -> marker.remove() }
         stationLocationMarkers.clear()

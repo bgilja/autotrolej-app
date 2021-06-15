@@ -63,8 +63,9 @@ class MapFragment : BaseFragment() {
             val filteredStations: List<Station> = stations.filter { x -> x.isValid() }
 
             filteredStations.forEach { station ->
+                currentStations.add(station)
                 if (!stationMarkerMap.containsKey(station.id)) {
-                    val marker = createMarker(station.latitude, station.longitude, station.name, R.drawable.ic_bus_stop)
+                    val marker = createMarker(station.latitude, station.longitude, station.identity.toString(), R.drawable.ic_bus_stop)
 
                     if (marker != null) {
                         stationMarkerMap[station.id] = marker

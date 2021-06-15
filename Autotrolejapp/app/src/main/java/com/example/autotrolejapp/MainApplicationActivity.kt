@@ -8,7 +8,7 @@ import com.example.autotrolejapp.database.AutotrolejDatabase
 import com.example.autotrolejapp.network.*
 import kotlinx.coroutines.*
 
-class MainApplicationActivity() : AppCompatActivity() {
+class MainApplicationActivity : AppCompatActivity() {
 
     private var fetchStatus = false
 
@@ -21,7 +21,7 @@ class MainApplicationActivity() : AppCompatActivity() {
         setContentView(R.layout.activity_main_application)
 
         scope.launch {
-            // fetchStatus = fetchData()
+            fetchStatus = fetchData()
             changeActivity()
         }
     }
