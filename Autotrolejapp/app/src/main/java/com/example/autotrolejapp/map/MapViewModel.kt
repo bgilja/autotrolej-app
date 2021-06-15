@@ -49,7 +49,7 @@ class MapViewModel(
         }
     }
 
-    private fun getAutotrolejBusLocations() {
+    public fun getAutotrolejBusLocations() {
         viewModelScope.launch {
             Log.d(className, "Request for autotrolej bus location")
             try {

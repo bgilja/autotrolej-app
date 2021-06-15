@@ -11,11 +11,16 @@ import com.example.autotrolejapp.entities.Station
 import com.example.autotrolejapp.helpers.BaseFragment
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
+import kotlinx.coroutines.*
 
 
 class MapFragment : BaseFragment() {
 
     private val stationMarkerMap = mutableMapOf<Int, Marker>()
+
+    @ObsoleteCoroutinesApi
+    val updateBusLocationsScope = CoroutineScope(newSingleThreadContext("update_bus_locations"))
+    var doUpdateBusLocation = false
 
     private val viewModel: MapViewModel by lazy {
         val application = requireNotNull(this.activity).application
@@ -50,12 +55,25 @@ class MapFragment : BaseFragment() {
         super.onPause()
 
         locationClient.removeLocationUpdates(mLocationCallback)
+
+        busLocationMarkers.forEach { marker -> marker.remove() }
+        this.doUpdateBusLocation = false
     }
 
     override fun onResume() {
         super.onResume()
 
         setCurrentLocation(30 * 1000)
+
+        this.doUpdateBusLocation = true
+        this.updateBusLocationsScope.launch { updateBusLocations() }
+    }
+
+    private suspend fun updateBusLocations() {
+        while(doUpdateBusLocation) {
+            viewModel.getAutotrolejBusLocations()
+            delay(5000)
+        }
     }
 
     override fun updateMapStations(stations: List<Station>) {
